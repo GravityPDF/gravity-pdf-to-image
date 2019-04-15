@@ -1,0 +1,12 @@
+.gfpdf-watermark {
+	display: none;
+}
+
+.gfpdf-watermark th {
+	padding-left: 25px;
+}
+
+tr.gfpdf-no-padding th,
+tr.gfpdf-no-padding td {
+	padding: 0;
+}
