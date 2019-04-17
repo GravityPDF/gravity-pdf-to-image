@@ -1,5 +1,5 @@
 {
-  "name": "gravity-pdf/watermark",
+  "name": "gravity-pdf/pdf-to-image",
   "type": "project",
   "license": "GPLv2",
   "require": {
@@ -7,7 +7,7 @@
   },
   "config": {
     "preferred-install": "dist",
-    "autoloader-suffix": "GravityPDFWatermarkAddon",
+    "autoloader-suffix": "GravityPDFToImageAddon",
     "platform": {
       "php": "5.6.39"
     }
@@ -17,7 +17,7 @@
   },
   "autoload": {
     "psr-4": {
-      "GFPDF\\Plugins\\Watermark\\": "src/"
+      "GFPDF\\Plugins\\PdfToImage\\": "src/"
     }
   }
 }

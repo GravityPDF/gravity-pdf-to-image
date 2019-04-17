@@ -2,7 +2,8 @@
 
 namespace GFPDF\Plugins\PdfToImage;
 
-
+use GFPDF\Plugins\PdfToImage\Permalink\Register;
+use GFPDF\Plugins\PdfToImage\Image\Listener;
 use GFPDF\Helper\Licensing\EDD_SL_Plugin_Updater;
 use GFPDF\Helper\Helper_Abstract_Addon;
 use GFPDF\Helper\Helper_Singleton;
@@ -67,7 +68,8 @@ class Bootstrap extends Helper_Abstract_Addon {
 		$classes = array_merge(
 			$classes,
 			[
-
+				new Register(),
+				new Listener(),
 			]
 		);
 
