@@ -46,6 +46,7 @@ class Register {
 	 */
 	public function init() {
 		add_action( 'init', [ $this, 'register_permalink' ], 5 ); /* run before Gravity PDF registers its endpoints */
+
 		add_filter( 'query_vars', [ $this, 'maybe_register_rewrite_tags' ], 20 );
 	}
 
@@ -64,10 +65,14 @@ class Register {
 
 		/* Get image permalink */
 		$base_permalink  = str_replace( '?(download)?/?', '', $install->get_permalink_regex() );
-		$image_permalink = $base_permalink . '(img)/?(-?[0-9]+)/?(download)?/?';
+
+		$image_base = $base_permalink . '(img)/?';
+		$image_permalink = $image_base . '(-?[0-9]+)/?(download)?/?';
 
 		/* Create two regex rules to account for users with "index.php" in the URL */
 		$query = [
+			'^' . $image_base,
+			'^' . $wp_rewrite->index . '/' . $image_base,
 			'^' . $image_permalink,
 			'^' . $wp_rewrite->index . '/' . $image_permalink,
 		];

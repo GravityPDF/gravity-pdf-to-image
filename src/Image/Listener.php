@@ -39,7 +39,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Listener {
 	public function init() {
 		add_action( 'gfpdf_pre_pdf_generation_output', [ $this, 'maybe_generate_image_from_pdf' ], 10, 5 );
-
 	}
 
 	/**
@@ -55,15 +54,11 @@ class Listener {
 
 		$action    = isset( $GLOBALS['wp']->query_vars['action'] ) ? $GLOBALS['wp']->query_vars['action'] : '';
 		$subaction = isset( $GLOBALS['wp']->query_vars['sub_action'] ) ? $GLOBALS['wp']->query_vars['sub_action'] : '';
-		$page      = isset( $GLOBALS['wp']->query_vars['page'] ) ? (int) $GLOBALS['wp']->query_vars['page'] : 0;
+		$page      = isset( $GLOBALS['wp']->query_vars['page'] ) ? $GLOBALS['wp']->query_vars['page'] : 0;
 
 		/* Do nothing if not requesting an image */
 		if ( $action !== 'img' ) {
 			return;
-		}
-
-		if ( $page === 0 ) {
-			throw new \Exception( 'Invalid PDF page passed to URL' );
 		}
 
 		/* TODO - add support for additional URL parameters if authorised user (like we do with `template`) */

@@ -110,7 +110,7 @@ class Generate {
 		$mpdf       = new Mpdf( [ 'mode' => 'c' ] );
 		$page_count = $mpdf->setSourceFile( $this->file );
 
-		if ( $this->page === 0 || abs( $this->page ) > $page_count ) {
+		if ( abs( $this->page ) > $page_count ) {
 			throw new InvalidArgumentException( 'The page to convert to an image does not exist in the PDF' );
 		}
 
@@ -134,19 +134,70 @@ class Generate {
 
 		$image = new Imagick();
 		$image->setResolution( $this->dpi, $this->dpi ); /* Add ability to control resolution */
-		$image->readImage( $this->file . '[' . ( $this->page - 1 ) . ']' );
+		$image->readImage( $this->get_pdf_filename() );
 
-		$image->setFilename( sprintf( '%s.jpg', basename( $this->file, '.pdf' ) ) );
+		if ( $this->should_show_all_pages() ) {
+			$image->resetIterator();
+			$image = $image->appendImages( true );
+		}
 
 		if ( ! $image->valid() ) {
 			throw new InvalidArgumentException( 'Invalid PDF' );
 		}
+
+		$image->setFilename( sprintf( '%s.jpg', basename( $this->file, '.pdf' ) ) );
 
 		$image->setImageFormat( 'jpg' );
 		$image->setImageCompressionQuality( $this->quality );
 		$image->setImageCompression( imagick::COMPRESSION_JPEG );
 
 		/* Resize image to the specification */
+		$image = $this->resize_image( $image );
+
+		$info = [
+			'mime'     => 'image/' . $image->getImageFormat(),
+			'data'     => $image->getImageBlob(),
+			'filename' => $image->getFilename(),
+		];
+
+		unset( $image );
+
+		return $info;
+	}
+
+	/**
+	 * @return bool
+	 *
+	 * @since 1.0
+	 */
+	public function should_show_all_pages() {
+		return $this->page === 0;
+	}
+
+	/**
+	 * Get the filename, while respecting the page(s) being generated
+	 *
+	 * @return string
+	 *
+	 * @since 1.0
+	 */
+	protected function get_pdf_filename() {
+		$pdf_file = $this->file;
+		if ( ! $this->should_show_all_pages() ) {
+			$pdf_file .= '[' . ( $this->page - 1 ) . ']';
+		}
+
+		return $pdf_file;
+	}
+
+	/**
+	 * @param Imagick $image
+	 *
+	 * @return Imagick
+	 *
+	 * @since 1.0
+	 */
+	protected function resize_image( Imagick $image ) {
 		if ( $this->width > 0 ) {
 			/* Ensure the largest edge gets resized */
 			$width  = $this->width;
@@ -160,15 +211,7 @@ class Generate {
 			}
 		}
 
-		$info = [
-			'mime'     => 'image/' . $image->getImageFormat(),
-			'data'     => $image->getImageBlob(),
-			'filename' => $image->getFilename(),
-		];
-
-		unset( $image );
-
-		return $info;
+		return $image;
 	}
 
 	/**
