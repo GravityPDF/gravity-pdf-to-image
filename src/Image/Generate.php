@@ -81,7 +81,7 @@ class Generate {
 
 	public function __construct( $file, $page, $dpi = 128, $quality = 100, $width = 0, $height = 0, $crop = false ) {
 		$this->file    = $file;
-		$this->page    = $page;
+		$this->page    = (int) $page;
 		$this->dpi     = abs( (int) $dpi );
 		$this->quality = abs( (int) $quality );
 		$this->width   = abs( (int) $width );
@@ -105,8 +105,13 @@ class Generate {
 		$mpdf       = new Mpdf( [ 'mode' => 'c' ] );
 		$page_count = $mpdf->setSourceFile( $this->file );
 
-		if ( $this->page > $page_count ) {
+		if ( $this->page === 0 || abs( $this->page ) > $page_count ) {
 			throw new \Exception( 'The page to convert to an image does not exist in the PDF' );
+		}
+
+		/* If negative, count from the end of the document */
+		if ( $this->page < 0 ) {
+			$this->page = 1 + $page_count + $this->page;
 		}
 	}
 
@@ -125,7 +130,7 @@ class Generate {
 		$image->setResolution( $this->dpi, $this->dpi ); /* Add ability to control resolution */
 		$image->readImage( $this->file . '[' . ( $this->page - 1 ) . ']' );
 
-		/* TODO - set filename */
+		$image->setFilename( sprintf( '%s.jpg', basename( $this->file, '.pdf' ) ) );
 
 		if ( ! $image->valid() ) {
 			throw new \Exception( 'Invalid PDF' );
@@ -186,6 +191,7 @@ class Generate {
 		header( 'Content-Transfer-Encoding: Binary' );
 		header( 'Content-Type: application/octet-stream' );
 		header( 'Content-Disposition: attachment; filename="' . $image['filename'] . '"' );
+
 		echo $image['data'];
 	}
 
@@ -193,6 +199,8 @@ class Generate {
 	 * Return a data URI for the PDF image
 	 *
 	 * @return string
+	 *
+	 * @throws \ImagickException
 	 *
 	 * @since 1.0
 	 */

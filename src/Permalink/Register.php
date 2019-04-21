@@ -46,6 +46,7 @@ class Register {
 	 */
 	public function init() {
 		add_action( 'init', [ $this, 'register_permalink' ], 5 ); /* run before Gravity PDF registers its endpoints */
+		add_filter( 'query_vars', [ $this, 'maybe_register_rewrite_tags' ], 20 );
 	}
 
 	/**
@@ -63,7 +64,7 @@ class Register {
 
 		/* Get image permalink */
 		$base_permalink  = str_replace( '?(download)?/?', '', $install->get_permalink_regex() );
-		$image_permalink = $base_permalink . '(img)/?([0-9]+)/?(download)?/?';
+		$image_permalink = $base_permalink . '(img)/?(-?[0-9]+)/?(download)?/?';
 
 		/* Create two regex rules to account for users with "index.php" in the URL */
 		$query = [
@@ -71,7 +72,7 @@ class Register {
 			'^' . $wp_rewrite->index . '/' . $image_permalink,
 		];
 
-		$rewrite_to = 'index.php?gpdf=1&pid=$matches[1]&lid=$matches[2]&action=$matches[3]&page=$matches[4]';
+		$rewrite_to = 'index.php?gpdf=1&pid=$matches[1]&lid=$matches[2]&action=$matches[3]&page=$matches[4]&sub_action=$matches[5]';
 
 		/* Add our endpoint */
 		add_rewrite_rule( $query[0], $rewrite_to, 'top' );
@@ -81,5 +82,19 @@ class Register {
 		$install->maybe_flush_rewrite_rules( $query );
 	}
 
-	/* TODO - register sub_action tag */
+	/**
+	 * @param array $tags
+	 *
+	 * @return array
+	 *
+	 * @since 1.0
+	 */
+	public function maybe_register_rewrite_tags( $tags ) {
+
+		if ( in_array( 'gpdf', $tags ) ) {
+			$tags[] = 'sub_action';
+		}
+
+		return $tags;
+	}
 }

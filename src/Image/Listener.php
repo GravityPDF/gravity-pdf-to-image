@@ -39,6 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Listener {
 	public function init() {
 		add_action( 'gfpdf_pre_pdf_generation_output', [ $this, 'maybe_generate_image_from_pdf' ], 10, 5 );
+
 	}
 
 	/**
@@ -48,12 +49,12 @@ class Listener {
 	 * @param array      $settings
 	 * @param Helper_PDF $helper_pdf
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function maybe_generate_image_from_pdf( $mpdf, $form, $entry, $settings, $helper_pdf ) {
 
 		$action    = isset( $GLOBALS['wp']->query_vars['action'] ) ? $GLOBALS['wp']->query_vars['action'] : '';
-		$subaction = isset( $GLOBALS['wp']->query_vars['sub_action'] ) ? $GLOBALS['wp']->query_vars['sub_action'] : 'download';
+		$subaction = isset( $GLOBALS['wp']->query_vars['sub_action'] ) ? $GLOBALS['wp']->query_vars['sub_action'] : '';
 		$page      = isset( $GLOBALS['wp']->query_vars['page'] ) ? (int) $GLOBALS['wp']->query_vars['page'] : 0;
 
 		/* Do nothing if not requesting an image */
@@ -72,7 +73,6 @@ class Listener {
 			$page
 		);
 
-		/* TODO - add support for downloading image using $GLOBALS['wp']->query_vars['sub_action'] */
 		if ( $subaction === 'download' ) {
 			$image->to_download();
 		} else {
@@ -81,4 +81,6 @@ class Listener {
 
 		wp_die();
 	}
+
+
 }
