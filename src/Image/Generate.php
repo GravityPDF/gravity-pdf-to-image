@@ -4,6 +4,7 @@ namespace GFPDF\Plugins\PdfToImage\Image;
 
 use Mpdf\Mpdf;
 use Imagick;
+use InvalidArgumentException;
 
 /**
  * @package     Gravity PDF to Image
@@ -94,11 +95,15 @@ class Generate {
 	/**
 	 * Verify the page to display is a valid number and exists
 	 *
+	 * @throws \Mpdf\MpdfException
+	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
+	 * @throws InvalidArgumentException
+	 *
 	 * @since 1.0
 	 */
 	protected function check_if_valid_page() {
 		if ( ! is_int( $this->page ) ) {
-			throw new \Exception( '$page must be an integer' );
+			throw new InvalidArgumentException( '$page must be an integer' );
 		}
 
 		/* Read the PDF and get the page count */
@@ -106,7 +111,7 @@ class Generate {
 		$page_count = $mpdf->setSourceFile( $this->file );
 
 		if ( $this->page === 0 || abs( $this->page ) > $page_count ) {
-			throw new \Exception( 'The page to convert to an image does not exist in the PDF' );
+			throw new InvalidArgumentException( 'The page to convert to an image does not exist in the PDF' );
 		}
 
 		/* If negative, count from the end of the document */
@@ -119,6 +124,7 @@ class Generate {
 	 * Convert a PDF Page to an Image
 	 *
 	 * @return array
+	 *
 	 * @throws \ImagickException
 	 *
 	 * @since 1.0
@@ -133,7 +139,7 @@ class Generate {
 		$image->setFilename( sprintf( '%s.jpg', basename( $this->file, '.pdf' ) ) );
 
 		if ( ! $image->valid() ) {
-			throw new \Exception( 'Invalid PDF' );
+			throw new InvalidArgumentException( 'Invalid PDF' );
 		}
 
 		$image->setImageFormat( 'jpg' );
