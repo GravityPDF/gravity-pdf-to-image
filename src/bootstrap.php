@@ -2,6 +2,7 @@
 
 namespace GFPDF\Plugins\PdfToImage;
 
+use GFPDF\Plugins\PdfToImage\Options\AddPdfToImageFields;
 use GFPDF\Plugins\PdfToImage\Permalink\Register;
 use GFPDF\Plugins\PdfToImage\Image\Listener;
 use GFPDF\Helper\Licensing\EDD_SL_Plugin_Updater;
@@ -70,6 +71,7 @@ class Bootstrap extends Helper_Abstract_Addon {
 			[
 				new Register(),
 				new Listener(),
+				new AddPdfToImageFields( GPDFAPI::get_misc_class(), GPDFAPI::get_options_class() ),
 			]
 		);
 

@@ -11,7 +11,7 @@
    * @since 1.0
    */
   function show () {
-    $('tr.gfpdf-watermark').show()
+    $('tr.gfpdf-pdf-to-image').show()
   }
 
   /**
@@ -20,11 +20,11 @@
    * @since 1.0
    */
   function hide () {
-    $('tr.gfpdf-watermark').hide()
+    $('tr.gfpdf-pdf-to-image').hide()
   }
 
   $(function () {
-    var checkbox = $('#gfpdf_settings\\[watermark_toggle\\]')
+    var checkbox = $('#gfpdf_settings\\[pdf_to_image_toggle\\]')
     checkbox.click(function () {
       $(this).is(':checked') ? show() : hide()
     })
