@@ -174,6 +174,7 @@ class Generate {
 		$image = $this->generate();
 
 		header( 'Content-Type: ' . $image['mime'] );
+		header( 'Content-Disposition: inline; filename="' . $image['filename'] . '"' );
 		echo $image['data'];
 	}
 
