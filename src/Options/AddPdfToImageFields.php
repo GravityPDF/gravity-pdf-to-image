@@ -176,8 +176,12 @@ class AddPdfToImageFields {
 
 		/* Treat the element like the paper_size field when getting the values */
 		$args['type'] = 'paper_size';
-		$value        = $this->options->get_form_value( $args );
 		$size         = ( isset( $args['size'] ) && ! is_null( $args['size'] ) ) ? esc_attr( $args['size'] ) : 'regular';
+
+		$value  = $this->options->get_form_value( $args );
+		$width  = isset( $value[0] ) ? $value[0] : 800;
+		$height = isset( $value[1] ) ? $value[1] : 600;
+		$crop   = isset( $value[2] ) ? $value[2] : 0;
 
 		ob_start();
 		?>
@@ -186,7 +190,7 @@ class AddPdfToImageFields {
 		       id="gfpdf_settings[<?= $args['id'] ?>]_width"
 		       class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
 		       name="gfpdf_settings[<?= $args['id'] ?>][]"
-		       value="<?= esc_attr( stripslashes( $value[0] ) ) ?>"
+		       value="<?= esc_attr( $width ) ?>"
 		       min="0"
 		/> <?= esc_html__( 'Width', 'gravity-pdf-to-image' ) ?>
 
@@ -194,7 +198,7 @@ class AddPdfToImageFields {
 		       id="gfpdf_settings[<?= $args['id'] ?>]_height"
 		       class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
 		       name="gfpdf_settings[<?= $args['id'] ?>][]"
-		       value="<?= esc_attr( stripslashes( $value[1] ) ) ?>"
+		       value="<?= esc_attr( $height ) ?>"
 		       min="0"
 		/> <?= esc_html__( 'Height (px)', 'gravity-pdf-to-image' ) ?>
 
@@ -204,7 +208,7 @@ class AddPdfToImageFields {
 			<input type="checkbox"
 			       id="gfpdf_settings[<?= $args['id'] ?>]_crop"
 			       name="gfpdf_settings[<?= $args['id'] ?>][]"
-				<?php checked( 1, $value[2] ) ?>
+				<?php checked( 1, $crop ) ?>
 			/> <?= esc_html__( 'Crop to Dimensions', 'gravity-pdf-to-image' ) ?>
 		</label>
 
