@@ -36,6 +36,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+/**
+ * Class Listener
+ *
+ * @package GFPDF\Plugins\PdfToImage\Image
+ */
 class Listener {
 	public function init() {
 		add_action( 'gfpdf_pre_pdf_generation_output', [ $this, 'maybe_generate_image_from_pdf' ], 10, 5 );
