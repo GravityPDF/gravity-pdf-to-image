@@ -80,7 +80,7 @@ class Generate {
 	 */
 	protected $crop;
 
-	public function __construct( $file, $page, $dpi = 128, $quality = 100, $width = 0, $height = 0, $crop = false ) {
+	public function __construct( $file, $page, $dpi = 150, $quality = 95, $width = 0, $height = 0, $crop = false ) {
 		$this->file    = $file;
 		$this->page    = (int) $page;
 		$this->dpi     = abs( (int) $dpi );
@@ -152,7 +152,7 @@ class Generate {
 		$image->setImageCompression( imagick::COMPRESSION_JPEG );
 
 		/* Resize image to the specification */
-		$image = $this->resize_image( $image );
+		$image = $this->resize_and_crop_image( $image );
 
 		$info = [
 			'mime'     => 'image/' . $image->getImageFormat(),
@@ -170,7 +170,7 @@ class Generate {
 	 *
 	 * @since 1.0
 	 */
-	public function should_show_all_pages() {
+	protected function should_show_all_pages() {
 		return $this->page === 0;
 	}
 
@@ -197,17 +197,25 @@ class Generate {
 	 *
 	 * @since 1.0
 	 */
-	protected function resize_image( Imagick $image ) {
+	protected function resize_and_crop_image( Imagick $image ) {
 		if ( $this->width > 0 ) {
 			/* Ensure the largest edge gets resized */
-			$width  = $this->width;
-			$height = round( $image->getImageHeight() * ( $this->width / $image->getImageWidth() ) );
+			if ( $this->width > $this->height ) {
+				$width  = $this->width;
+				$height = round( $image->getImageHeight() * ( $this->width / $image->getImageWidth() ) );
+			} else {
+				$width  = round( $image->getImageWidth() * ( $this->height / $image->getImageHeight() ) );
+				$height = $this->height;
+			}
 
 			$image->resizeImage( $width, $height, imagick::FILTER_LANCZOS, 0.8 );
 
-			/* Crop if the height is less than the resized height */
-			if ( $this->crop && $this->height > 0 && $image->getImageHeight() > $this->height ) {
-				$image->cropImage( $image->getImageWidth(), $this->height, 0, 0 );
+			if ( $this->crop ) {
+				if ( $this->height > 0 && $image->getImageHeight() > $this->height ) {
+					$image->cropImage( $image->getImageWidth(), $this->height, 0, 0 ); /* Crop $y from the bottom */
+				} elseif ( $this->width > 0 && $image->getImageWidth() > $this->width ) {
+					$image->cropImage( $this->width, $image->getImageHeight(), ( $width - $this->width ) / 2, 0 ); /* Crop $x from both left and right evenly */
+				}
 			}
 		}
 
