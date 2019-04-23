@@ -2,6 +2,8 @@
 
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
+use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
+
 /**
  * @package     Gravity PDF to Image
  * @copyright   Copyright (c) 2019, Blue Liquid Designs
@@ -41,4 +43,27 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class AddImageLinkToEntryDetails {
 
+	/**
+	 * @since 1.0
+	 */
+	public function init() {
+		add_action( 'gfpdf_entry_detail_post_pdf_links_markup', [ $this, 'add_image_link_to_entry_details' ] );
+	}
+
+	/**
+	 * If the PDF is configured, add it as an option to the Entry Details page
+	 *
+	 * @param array $pdf
+	 *
+	 * @since 1.0
+	 */
+	public function add_image_link_to_entry_details( $pdf ) {
+		if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) ) {
+			echo sprintf(
+				'<a href="%s" class="button" target="_blank">%s</a>',
+				ImageUrl::get( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),
+				__( 'Image', 'gravity-pdf-to-image' )
+			);
+		}
+	}
 }
