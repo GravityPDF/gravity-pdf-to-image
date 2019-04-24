@@ -4,6 +4,7 @@ namespace GFPDF\Plugins\PdfToImage\Image;
 
 use Mpdf\Mpdf;
 use Imagick;
+use ImagickException;
 use InvalidArgumentException;
 
 /**
@@ -125,7 +126,7 @@ class Generate {
 	 *
 	 * @return array
 	 *
-	 * @throws \ImagickException
+	 * @throws ImagickException
 	 *
 	 * @since 1.0
 	 */
@@ -149,9 +150,10 @@ class Generate {
 
 		$image->setImageFormat( 'jpg' );
 		$image->setImageCompressionQuality( $this->quality );
-		$image->setImageCompression( imagick::COMPRESSION_JPEG );
+		$image->setImageCompression( Imagick::COMPRESSION_JPEG );
 
-		/* Resize image to the specification */
+		/* Prepare image for output */
+		$image = $this->embed_cmyk_color_profile( $image );
 		$image = $this->resize_and_crop_image( $image );
 
 		$info = [
@@ -208,7 +210,7 @@ class Generate {
 				$height = $this->height;
 			}
 
-			$image->resizeImage( $width, $height, imagick::FILTER_LANCZOS, 0.8 );
+			$image->resizeImage( $width, $height, Imagick::FILTER_LANCZOS, 0.8 );
 
 			if ( $this->crop ) {
 				if ( $this->height > 0 && $image->getImageHeight() > $this->height ) {
@@ -218,6 +220,39 @@ class Generate {
 				}
 			}
 		}
+
+		return $image;
+	}
+
+	/**
+	 * Convert CMYK to RGB
+	 *
+	 * @param Imagick $image
+	 *
+	 * @return Imagick
+	 *
+	 * @since 1.0
+	 */
+	protected function embed_cmyk_color_profile( Imagick $image ) {
+
+		if ( $image->getImageColorspace() !== Imagick::COLORSPACE_CMYK ) {
+			return $image;
+		}
+
+		$profiles = $image->getImageProfiles( '*', false );
+		if ( array_search( 'icc', $profiles ) === false ) {
+			$icc_cmyk = file_get_contents( dirname( GFPDF_PDF_TO_IMAGE_FILE ) . '/assets/iccprofile/USWebCoatedSWOP.icc' );
+			$image->profileImage( 'icc', $icc_cmyk );
+			unset( $icc_cmyk );
+		}
+
+		/* Add an RGB Profile */
+		$icc_rgb = file_get_contents( dirname( GFPDF_PDF_TO_IMAGE_FILE ) . '/assets/iccprofile/sRGB_v4_ICC_preference.icc' );
+		$image->profileImage( 'icc', $icc_rgb );
+		unset( $icc_rgb );
+
+		/* Now strip the embedded colorspace */
+		$image->stripImage();
 
 		return $image;
 	}
@@ -258,7 +293,7 @@ class Generate {
 	 *
 	 * @return string
 	 *
-	 * @throws \ImagickException
+	 * @throws ImagickException
 	 *
 	 * @since 1.0
 	 */
