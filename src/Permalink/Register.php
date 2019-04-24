@@ -64,27 +64,31 @@ class Register {
 		$install = \GPDFAPI::get_mvc_class( 'Model_Install' );
 
 		/* Get image permalink */
-		$base_permalink  = str_replace( '?(download)?/?', '', $install->get_permalink_regex() );
+		$base_permalink = str_replace( '?(download)?/?', '', $install->get_permalink_regex() );
 
 		$image_base = $base_permalink . '(img)/?';
-		$image_permalink = $image_base . '(-?[0-9]+)/?(download)?/?';
+
+		$image_all_permalink  = $image_base . '(download)?/?$';
+		$image_page_permalink = $image_base . '(-?[0-9]+)/?(download)?/?';
 
 		/* Create two regex rules to account for users with "index.php" in the URL */
-		$query = [
-			'^' . $image_base,
-			'^' . $wp_rewrite->index . '/' . $image_base,
-			'^' . $image_permalink,
-			'^' . $wp_rewrite->index . '/' . $image_permalink,
+		$rewrite_all_to  = 'index.php?gpdf=1&pid=$matches[1]&lid=$matches[2]&action=$matches[3]&sub_action=$matches[4]';
+		$rewrite_page_to = 'index.php?gpdf=1&pid=$matches[1]&lid=$matches[2]&action=$matches[3]&page=$matches[4]&sub_action=$matches[5]';
+
+		$permalinks = [
+			'^' . $image_all_permalink                             => $rewrite_all_to,
+			'^' . $wp_rewrite->index . '/' . $image_all_permalink  => $rewrite_all_to,
+			'^' . $image_page_permalink                            => $rewrite_page_to,
+			'^' . $wp_rewrite->index . '/' . $image_page_permalink => $rewrite_page_to,
 		];
 
-		$rewrite_to = 'index.php?gpdf=1&pid=$matches[1]&lid=$matches[2]&action=$matches[3]&page=$matches[4]&sub_action=$matches[5]';
-
 		/* Add our endpoint */
-		add_rewrite_rule( $query[0], $rewrite_to, 'top' );
-		add_rewrite_rule( $query[1], $rewrite_to, 'top' );
+		foreach ( $permalinks as $query => $rewrite ) {
+			add_rewrite_rule( $query, $rewrite, 'top' );
+		}
 
 		/* check to see if we need to flush the rewrite rules */
-		$install->maybe_flush_rewrite_rules( $query );
+		$install->maybe_flush_rewrite_rules( array_keys( $permalinks ) );
 	}
 
 	/**
