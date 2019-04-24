@@ -2,6 +2,8 @@
 
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
+use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
+
 /**
  * @package     Gravity PDF to Image
  * @copyright   Copyright (c) 2019, Blue Liquid Designs
@@ -41,4 +43,44 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class AddImageLinkToEntryList {
 
+	/**
+	 * Only run on the Gravity Forms Entry List Admin Page
+	 *
+	 * @since 1.0
+	 */
+	public function init() {
+
+		if ( \GFForms::get_page() !== 'entry_list' ) {
+			return;
+		}
+
+		add_filter( 'gfpdf_get_pdf_display_list', [ $this, 'add_image_link_to_entry_list' ] );
+	}
+
+	/**
+	 * Add PDF Image links to the Entry Details page
+	 *
+	 * @param array $list A list of PDFs available to the current entry
+	 *
+	 * @return array
+	 *
+	 * @since 1.0
+	 */
+	public function add_image_link_to_entry_list( $list ) {
+		$new_list = [];
+		foreach ( $list as $pdf ) {
+
+			$new_list[] = $pdf;
+
+			if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) ) {
+				$pdf['name']     = sprintf( __( 'Image: %s', 'gravity-pdf-to-image' ), $pdf['name'] );
+				$pdf['view']     = ImageUrl::get( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] );
+				$pdf['download'] = ImageUrl::get( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'], true );
+
+				$new_list[] = $pdf;
+			}
+		}
+
+		return $new_list;
+	}
 }
