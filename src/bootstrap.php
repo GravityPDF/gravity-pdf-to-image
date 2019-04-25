@@ -4,6 +4,7 @@ namespace GFPDF\Plugins\PdfToImage;
 
 use GFPDF\Plugins\PdfToImage\Entry\AddImageLinkToEntryDetails;
 use GFPDF\Plugins\PdfToImage\Entry\AddImageLinkToEntryList;
+use GFPDF\Plugins\PdfToImage\Entry\AddImageToNotification;
 use GFPDF\Plugins\PdfToImage\Options\AddPdfToImageFields;
 use GFPDF\Plugins\PdfToImage\Permalink\Register;
 use GFPDF\Plugins\PdfToImage\Image\Listener;
@@ -67,6 +68,10 @@ class Bootstrap extends Helper_Abstract_Addon {
 	 */
 	public function init( $classes = [] ) {
 
+		/* Setup a temporary location for the PDF to Images files */
+		$data = GPDFAPI::get_data_class();
+		$data->pdf_to_images_tmp_location = $data->template_tmp_location . 'pdf-to-images/';
+
 		/* Register our classes and pass back up to the parent initialiser */
 		$classes = array_merge(
 			$classes,
@@ -76,6 +81,7 @@ class Bootstrap extends Helper_Abstract_Addon {
 				new AddPdfToImageFields( GPDFAPI::get_misc_class(), GPDFAPI::get_options_class() ),
 				new AddImageLinkToEntryList(),
 				new AddImageLinkToEntryDetails(),
+				new AddImageToNotification($data->pdf_to_images_tmp_location),
 			]
 		);
 

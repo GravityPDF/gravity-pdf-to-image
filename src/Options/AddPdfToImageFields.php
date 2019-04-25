@@ -155,6 +155,22 @@ class AddPdfToImageFields {
 					'size'    => 'small',
 					'tooltip' => '<h6>' . esc_html__( 'Image Quality', 'gravity-pdf-to-image' ) . '</h6>' . esc_html__( 'Select 100 for the highest quality image, and 0 for the lowest quality image.', 'gravity-pdf-to-image' ),
 				],
+
+				'pdf_to_image_notifications' => [
+					'id'      => 'pdf_to_image_notifications',
+					'type'    => 'radio',
+					'name'    => esc_html__( 'Image Notifications', 'gravity-pdf-to-image' ),
+					'class'   => 'gfpdf-pdf-to-image',
+					'options' => [
+						'PDF'         => esc_html__( 'PDF', 'gravity-pdf-to-image' ),
+						'Image'       => esc_html__( 'Image', 'gravity-pdf-to-image' ),
+						'PDF + Image' => esc_html__( 'PDF + Image', 'gravity-pdf-to-image' ),
+					],
+					'std'     => 'PDF',
+					'desc'    => esc_html__( 'Select which files to attach to the selected Gravity Forms Notifications.', 'gravity-pdf-to-image' ),
+					'size'    => 'small',
+					'tooltip' => '<h6>' . esc_html__( 'Image Notifications', 'gravity-pdf-to-image' ) . '</h6>' . esc_html__( 'If the PDF has been configured on any Gravity Forms Notifications (see above), this setting controls whether the PDF, Image, or PDF and Image will be automatically sent as email attachments.', 'gravity-pdf-to-image' ),
+				],
 			];
 
 			$settings += $pdf_to_image_settings;

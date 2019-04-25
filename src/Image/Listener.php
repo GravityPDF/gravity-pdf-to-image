@@ -66,22 +66,10 @@ class Listener {
 			return;
 		}
 
-		/* TODO - add support for additional URL parameters if authorised user (like we do with `template`) */
-		$dpi     = isset( $settings['pdf_to_image_dpi'] ) ? $settings['pdf_to_image_dpi'] : 150;
-		$quality = isset( $settings['pdf_to_image_quality'] ) ? $settings['pdf_to_image_quality'] : 95;
-		$width   = isset( $settings['pdf_to_image_resize_and_crop'][0] ) ? $settings['pdf_to_image_resize_and_crop'][0] : 800;
-		$height  = isset( $settings['pdf_to_image_resize_and_crop'][1] ) ? $settings['pdf_to_image_resize_and_crop'][1] : 600;
-		$crop    = ! empty( $settings['pdf_to_image_resize_and_crop'][2] ) ? true : false;
+		$image_config         = ImageConfig::get( $settings );
+		$image_config['page'] = $page;
 
-		$image = new Generate(
-			$helper_pdf->save_pdf( $mpdf->Output( '', \Mpdf\Output\Destination::STRING_RETURN ) ),
-			$page,
-			$dpi,
-			$quality,
-			$width,
-			$height,
-			$crop
-		);
+		$image = new Generate( $helper_pdf->save_pdf( $mpdf->Output( '', \Mpdf\Output\Destination::STRING_RETURN ) ), $image_config );
 
 		if ( $subaction === 'download' ) {
 			$image->to_download();

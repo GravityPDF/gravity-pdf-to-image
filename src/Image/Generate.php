@@ -52,6 +52,11 @@ class Generate {
 	protected $file;
 
 	/**
+	 * @var string The generated image filename
+	 */
+	protected $image_filename;
+
+	/**
 	 * @var int The PDF page to load
 	 */
 	protected $page;
@@ -81,14 +86,26 @@ class Generate {
 	 */
 	protected $crop;
 
-	public function __construct( $file, $page, $dpi = 150, $quality = 95, $width = 0, $height = 0, $crop = false ) {
-		$this->file    = $file;
-		$this->page    = (int) $page;
-		$this->dpi     = abs( (int) $dpi );
-		$this->quality = abs( (int) $quality );
-		$this->width   = abs( (int) $width );
-		$this->height  = abs( (int) $height );
-		$this->crop    = (bool) $crop;
+	public function __construct( $file, $config = [] ) {
+
+		/* Override defaults with user-defined configuration */
+		$config = array_merge( [
+			'page'    => 1,
+			'dpi'     => 150,
+			'quality' => 95,
+			'width'   => 800,
+			'height'  => 600,
+			'crop'    => false,
+		], $config );
+
+		$this->file           = $file;
+		$this->page           = (int) $config['page'];
+		$this->dpi            = abs( (int) $config['dpi'] );
+		$this->quality        = abs( (int) $config['quality'] );
+		$this->width          = abs( (int) $config['width'] );
+		$this->height         = abs( (int) $config['height'] );
+		$this->crop           = (bool) $config['crop'];
+		$this->image_filename = sprintf( '%s.jpg', basename( $this->file, '.pdf' ) );
 
 		$this->check_if_valid_page();
 	}
@@ -258,6 +275,18 @@ class Generate {
 	}
 
 	/**
+	 * Get the filename of the image
+	 *
+	 * @return string
+	 *
+	 * @since 1.0
+	 */
+	public function get_image_name() {
+		return $this->image_filename;
+	}
+
+
+	/**
 	 * Output for the PDF image
 	 *
 	 * @since 1.0
@@ -302,14 +331,37 @@ class Generate {
 		return 'data:' . $image['mime'] . ';base64,' . base64_encode( $image['data'] );
 	}
 
-//	/* return image blob */
-//	public function to_string() {
-//		return $this->generate()['data'];
-//	}
-//
-//	/* Save to file */
-//	public function to_file( $file ) {
-//
-//	}
+	/**
+	 * Return the image blob
+	 *
+	 * @return string
+	 *
+	 * @throws ImagickException
+	 *
+	 * @since 1.0
+	 */
+	public function to_string() {
+		return $this->generate()['data'];
+	}
 
+	/**
+	 * Write image to file
+	 *
+	 * @param string $file
+	 *
+	 * @throws ImagickException
+	 *
+	 * @since 1.0
+	 */
+	public function to_file( $folder ) {
+		if ( wp_mkdir_p( $folder ) === false ) {
+			throw new \Exception( 'Failed to create folder:' . $folder );
+		}
+
+		$file = $folder . $this->get_image_name();
+
+		if ( ! file_put_contents( $file, $this->generate()['data'] ) ) {
+			throw new \Exception( 'Failed to write image to file: ' . $file );
+		}
+	}
 }
