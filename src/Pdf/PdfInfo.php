@@ -37,6 +37,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+/**
+ * Class PdfInfo
+ *
+ * @package GFPDF\Plugins\PdfToImage\Pdf
+ */
 class PdfInfo {
 
 	/**
@@ -70,10 +75,24 @@ class PdfInfo {
 		$this->generator->set_filename( $pdf_model->get_pdf_name( $pdf, $entry ) );
 	}
 
+	/**
+	 * Get the PDF Filename
+	 *
+	 * @return string
+	 *
+	 * @since 1.0
+	 */
 	public function get_filename() {
 		return $this->generator->get_filename();
 	}
 
+	/**
+	 * Get the absolute path to save the PDF
+	 *
+	 * @return string
+	 *
+	 * @since 1.0
+	 */
 	public function get_absolute_path() {
 		return $this->generator->get_full_pdf_path();
 	}
