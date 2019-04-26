@@ -14,6 +14,7 @@ use GFPDF\Helper\Helper_Singleton;
 use GFPDF\Helper\Helper_Logger;
 use GFPDF\Helper\Helper_Notices;
 
+use GFPDF\Plugins\PdfToImage\Shortcode\GravityPdfImage;
 use GPDFAPI;
 
 /**
@@ -69,7 +70,7 @@ class Bootstrap extends Helper_Abstract_Addon {
 	public function init( $classes = [] ) {
 
 		/* Setup a temporary location for the PDF to Images files */
-		$data = GPDFAPI::get_data_class();
+		$data                             = GPDFAPI::get_data_class();
 		$data->pdf_to_images_tmp_location = $data->template_tmp_location . 'pdf-to-images/';
 
 		/* Register our classes and pass back up to the parent initialiser */
@@ -81,7 +82,8 @@ class Bootstrap extends Helper_Abstract_Addon {
 				new AddPdfToImageFields( GPDFAPI::get_misc_class(), GPDFAPI::get_options_class() ),
 				new AddImageLinkToEntryList(),
 				new AddImageLinkToEntryDetails(),
-				new AddImageToNotification($data->pdf_to_images_tmp_location),
+				new AddImageToNotification( $data->pdf_to_images_tmp_location ),
+				new GravityPdfImage( GPDFAPI::get_form_class(), GPDFAPI::get_misc_class() ),
 			]
 		);
 
