@@ -167,9 +167,9 @@ class AddPdfToImageFields {
 						'PDF + Image' => esc_html__( 'PDF + Image', 'gravity-pdf-to-image' ),
 					],
 					'std'     => 'PDF',
-					'desc'    => esc_html__( 'Select which files to attach to the selected Gravity Forms Notifications.', 'gravity-pdf-to-image' ),
+					'desc'    => esc_html__( 'Choose the file(s) to attach to the Gravity Forms Notifications you have selected.', 'gravity-pdf-to-image' ),
 					'size'    => 'small',
-					'tooltip' => '<h6>' . esc_html__( 'Image Notifications', 'gravity-pdf-to-image' ) . '</h6>' . esc_html__( 'If the PDF has been configured on any Gravity Forms Notifications (see above), this setting controls whether the PDF, Image, or PDF and Image will be automatically sent as email attachments.', 'gravity-pdf-to-image' ),
+					'tooltip' => '<h6>' . esc_html__( 'Image Notifications', 'gravity-pdf-to-image' ) . '</h6>' . esc_html__( 'If the PDF has been configured on any Gravity Forms Notifications (see above), this setting controls whether the PDF, Image, or PDF and Image will be automatically sent as an email attachment.', 'gravity-pdf-to-image' ),
 				],
 			];
 
