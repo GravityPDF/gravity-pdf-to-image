@@ -3,6 +3,7 @@
 namespace GFPDF\Plugins\PdfToImage\Pdf;
 
 use GFPDF\Helper\Helper_PDF;
+use GFPDF\Model\Model_PDF;
 use GPDFAPI;
 
 /**
@@ -38,11 +39,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 */
 
 /**
- * Class PdfInfo
+ * Class PdfWrapper
  *
  * @package GFPDF\Plugins\PdfToImage\Pdf
  */
-class PdfInfo {
+class PdfWrapper {
 
 	/**
 	 * @var Helper_PDF
@@ -60,6 +61,7 @@ class PdfInfo {
 	 * @since 1.0
 	 */
 	public function __construct( $entry, $pdf ) {
+		/** @var Model_PDF $pdf_model */
 		$pdf_model = GPDFAPI::get_mvc_class( 'Model_PDF' );
 
 		$this->generator = new Helper_PDF(
@@ -76,6 +78,20 @@ class PdfInfo {
 	}
 
 	/**
+	 * Save the PDF to disk
+	 *
+	 * @return bool
+	 *
+	 * @since 1.0
+	 */
+	public function generate() {
+		/** @var Model_PDF $pdf_model */
+		$pdf_model = GPDFAPI::get_mvc_class( 'Model_PDF' );
+
+		return $pdf_model->process_and_save_pdf( $this->generator );
+	}
+
+	/**
 	 * Get the PDF Filename
 	 *
 	 * @return string
@@ -87,6 +103,17 @@ class PdfInfo {
 	}
 
 	/**
+	 * Set the PDF filename
+	 *
+	 * @param string $filename
+	 *
+	 * @since 1.0
+	 */
+	public function set_filename( $filename ) {
+		$this->generator->set_filename( $filename );
+	}
+
+	/**
 	 * Get the absolute path to save the PDF
 	 *
 	 * @return string
@@ -95,5 +122,16 @@ class PdfInfo {
 	 */
 	public function get_absolute_path() {
 		return $this->generator->get_full_pdf_path();
+	}
+
+	/**
+	 * Get the PDF path
+	 *
+	 * @return string
+	 *
+	 * @since 1.0
+	 */
+	public function get_path() {
+		return $this->generator->get_path();
 	}
 }

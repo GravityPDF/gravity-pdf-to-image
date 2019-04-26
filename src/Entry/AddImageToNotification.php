@@ -4,7 +4,7 @@ namespace GFPDF\Plugins\PdfToImage\Entry;
 
 use GFPDF\Plugins\PdfToImage\Image\Generate;
 use GFPDF\Plugins\PdfToImage\Image\ImageConfig;
-use GFPDF\Plugins\PdfToImage\Pdf\PdfInfo;
+use GFPDF\Plugins\PdfToImage\Pdf\PdfWrapper;
 
 /**
  * @package     Gravity PDF to Image
@@ -45,14 +45,34 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class AddImageToNotification {
 
+	/**
+	 * @var string The path to the image tmp location
+	 *
+	 * @since 1.0
+	 */
 	protected $tmp_path;
 
+	/**
+	 * @var array The Gravity PDF Form setting to process
+	 *
+	 * @since 1.0
+	 */
 	protected $settings = [];
 
+	/**
+	 * AddImageToNotification constructor.
+	 *
+	 * @param string $tmp_path
+	 *
+	 * @since 1.0
+	 */
 	public function __construct( $tmp_path ) {
 		$this->tmp_path = $tmp_path;
 	}
 
+	/**
+	 * @since 1.0
+	 */
 	public function init() {
 		add_action( 'gfpdf_post_generate_and_save_pdf_notification', [ $this, 'register_pdf_to_convert_to_image' ], 10, 4 );
 		add_filter( 'gform_notification', [ $this, 'maybe_attach_files_to_notifications', ], 10000, 3 );
@@ -112,7 +132,6 @@ class AddImageToNotification {
 
 		list(
 			$pdf_absolute_path,
-			$image_tmp_directory,
 			$image_absolute_path
 			) = $this->get_pdf_and_image_path_details( $entry, $settings );
 
@@ -123,16 +142,16 @@ class AddImageToNotification {
 			return $attachments;
 		}
 
-		/* @TODO if PDF doesnt exist, or password protected regenerate */
-		if ( ! is_file( $pdf_absolute_path ) ) {
-			return $attachments;
-		}
-
 		/* Convert PDF to Image and save to disk */
 		$image = new Generate( $pdf_absolute_path, ImageConfig::get( $settings ) );
-		$image->to_file( $image_tmp_directory . $image->get_image_name() );
+		$image->to_file( $image_absolute_path );
 
 		$attachments = $this->handle_attachments( $attachments, $image_absolute_path, $pdf_absolute_path );
+
+		/* Clean-up */
+		if ( $settings['security'] === 'Yes' ) {
+			unlink( $pdf_absolute_path );
+		}
 
 		return $attachments;
 	}
@@ -144,22 +163,61 @@ class AddImageToNotification {
 	 * @param array $settings The Gravity PDF Form setting
 	 *
 	 * @return array
+	 * @throws \Exception
 	 *
 	 * @since 1.0
 	 */
-	public function get_pdf_and_image_path_details( $entry, $settings ) {
-		$pdf_info   = new PdfInfo( $entry, $settings );
-		$image_info = new Generate( $pdf_info->get_absolute_path(), ImageConfig::get( $settings ) );
+	protected function get_pdf_and_image_path_details( $entry, $settings ) {
+		$pdf        = $this->maybe_generate_tmp_pdf( $entry, $settings );
+		$image_info = new Generate( $pdf->get_absolute_path(), ImageConfig::get( $settings ) );
 
-		$pdf_absolute_path   = $pdf_info->get_absolute_path();
+		/* If we had to generate a tmp PDF, reset the image name back to the original */
+		if ( $settings['security'] === 'Yes' ) {
+			$image_info->set_image_name( substr( strstr( $pdf->get_filename(), '@@' ), 2 ) );
+		}
+
+		$pdf_absolute_path   = $pdf->get_absolute_path();
 		$image_tmp_directory = $this->tmp_path . $entry['form_id'] . $entry['id'] . '/';
 		$image_absolute_path = $image_tmp_directory . $image_info->get_image_name();
 
 		return [
 			$pdf_absolute_path,
-			$image_tmp_directory,
 			$image_absolute_path,
+			$image_tmp_directory,
 		];
+	}
+
+	/**
+	 * Check if we need to generate a tmp PDF with security disabled, then generate
+	 *
+	 * @param array $entry
+	 * @param array $settings
+	 *
+	 * @return PdfWrapper Return a valid Pdf object
+	 * @throws \Exception
+	 *
+	 * @since 1.0
+	 */
+	protected function maybe_generate_tmp_pdf( $entry, $settings ) {
+		$does_pdf_have_security_enabled = $settings['security'] === 'Yes';
+
+		if ( $does_pdf_have_security_enabled ) {
+			$settings['security'] = 'No';
+		}
+
+		$pdf = new PdfWrapper( $entry, $settings );
+
+		/* We need to regenerate the PDF, so adjust the filename to not override the original PDF */
+		if ( $does_pdf_have_security_enabled ) {
+			$pdf->set_filename( time() . '@@' . $pdf->get_filename() );
+		}
+
+		/* If the PDF doesn't exist, generate */
+		if ( ! is_file( $pdf->get_absolute_path() ) && ! $pdf->generate() ) {
+			throw new \Exception( 'Could not generate PDF for image conversion' );
+		}
+
+		return $pdf;
 	}
 
 	/**

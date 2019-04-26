@@ -105,7 +105,7 @@ class Generate {
 		$this->width          = abs( (int) $config['width'] );
 		$this->height         = abs( (int) $config['height'] );
 		$this->crop           = (bool) $config['crop'];
-		$this->image_filename = sprintf( '%s.jpg', basename( $this->file, '.pdf' ) );
+		$this->image_filename = $this->set_image_name( basename( $this->file ) );
 
 		$this->check_if_valid_page();
 	}
@@ -152,7 +152,7 @@ class Generate {
 
 		$image = new Imagick();
 		$image->setResolution( $this->dpi, $this->dpi ); /* Add ability to control resolution */
-		$image->readImage( $this->get_pdf_filename() );
+		$image->readImage( $this->get_pdf_path() );
 
 		if ( $this->should_show_all_pages() ) {
 			$image->resetIterator();
@@ -200,7 +200,7 @@ class Generate {
 	 *
 	 * @since 1.0
 	 */
-	protected function get_pdf_filename() {
+	protected function get_pdf_path() {
 		$pdf_file = $this->file;
 		if ( ! $this->should_show_all_pages() ) {
 			$pdf_file .= '[' . ( $this->page - 1 ) . ']';
@@ -288,6 +288,25 @@ class Generate {
 	}
 
 	/**
+	 * Set the image filename
+	 *
+	 * @param string $file The name of the image or PDF
+	 *
+	 * @throws \Exception
+	 *
+	 * @since 1.0
+	 */
+	public function set_image_name( $file ) {
+		if ( substr( $file, -4 ) === '.pdf' ) {
+			$this->image_filename = sprintf( '%s.jpg', basename( $file, '.pdf' ) );
+		} elseif ( substr( $file, -4 ) !== '.jpg' ) {
+			throw new \Exception( 'The image file extension must be .jpg' );
+		} else {
+			$this->image_filename = $file;
+		}
+	}
+
+	/**
 	 * Output for the PDF image
 	 *
 	 * @since 1.0
@@ -360,7 +379,7 @@ class Generate {
 			throw new \Exception( 'The image file extension must be .jpg' );
 		}
 
-		if ( wp_mkdir_p( basename( $file ) ) === false ) {
+		if ( wp_mkdir_p( dirname( $file ) ) === false ) {
 			throw new \Exception( 'Failed to create folder:' . basename( $file ) );
 		}
 

@@ -69,6 +69,9 @@ class Listener {
 		$image_config         = ImageConfig::get( $settings );
 		$image_config['page'] = $page;
 
+		/* Disable PDF encryption which prevents Imagick from loading the PDF */
+		$mpdf->encrypted = false;
+
 		$image = new Generate( $helper_pdf->save_pdf( $mpdf->Output( '', \Mpdf\Output\Destination::STRING_RETURN ) ), $image_config );
 
 		if ( $subaction === 'download' ) {
