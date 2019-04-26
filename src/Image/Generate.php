@@ -219,7 +219,7 @@ class Generate {
 	protected function resize_and_crop_image( Imagick $image ) {
 		if ( $this->width > 0 ) {
 			/* Ensure the largest edge gets resized */
-			if ( $this->width > $this->height ) {
+			if ( $image->getImageWidth() > $image->getImageHeight() ) {
 				$width  = $this->width;
 				$height = round( $image->getImageHeight() * ( $this->width / $image->getImageWidth() ) );
 			} else {
