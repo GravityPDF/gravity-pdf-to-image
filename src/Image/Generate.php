@@ -285,7 +285,6 @@ class Generate {
 		return $this->image_filename;
 	}
 
-
 	/**
 	 * Output for the PDF image
 	 *
@@ -347,18 +346,21 @@ class Generate {
 	/**
 	 * Write image to file
 	 *
-	 * @param string $file
+	 * @param string $file The absolute path and filename of the image
 	 *
 	 * @throws ImagickException
 	 *
 	 * @since 1.0
 	 */
-	public function to_file( $folder ) {
-		if ( wp_mkdir_p( $folder ) === false ) {
-			throw new \Exception( 'Failed to create folder:' . $folder );
+	public function to_file( $file ) {
+
+		if ( substr( $file, -4 ) !== '.jpg' ) {
+			throw new \Exception( 'The image file extension must be .jpg' );
 		}
 
-		$file = $folder . $this->get_image_name();
+		if ( wp_mkdir_p( basename( $file ) ) === false ) {
+			throw new \Exception( 'Failed to create folder:' . basename( $file ) );
+		}
 
 		if ( ! file_put_contents( $file, $this->generate()['data'] ) ) {
 			throw new \Exception( 'Failed to write image to file: ' . $file );
