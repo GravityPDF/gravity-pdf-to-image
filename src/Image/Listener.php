@@ -3,6 +3,7 @@
 namespace GFPDF\Plugins\PdfToImage\Image;
 
 use GFPDF\Helper\Helper_PDF;
+use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 
 /**
  * @package     Gravity PDF to Image
@@ -64,6 +65,11 @@ class Listener {
 		/* Do nothing if not requesting an image */
 		if ( $action !== 'img' ) {
 			return;
+		}
+
+		/* If PDF password protected, throw error */
+		if ( PdfSecurity::is_password_protected( $settings ) ) {
+			wp_die( __( 'Password protected PDFs cannot be converted to images.', 'gravity-pdf-to-image' ) );
 		}
 
 		$image_config         = ImageConfig::get( $settings );

@@ -4,6 +4,7 @@ namespace GFPDF\Plugins\PdfToImage\Entry;
 
 use GFPDF\Plugins\PdfToImage\Image\Generate;
 use GFPDF\Plugins\PdfToImage\Image\ImageConfig;
+use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfWrapper;
 
 /**
@@ -88,7 +89,7 @@ class AddImageToNotification {
 	 */
 	public function register_pdf_to_convert_to_image( $form, $entry, $settings, $notification ) {
 		$this->settings = [];
-		if ( ! empty( $settings['pdf_to_image_toggle'] ) && $settings['pdf_to_image_notifications'] !== 'PDF' ) {
+		if ( ! empty( $settings['pdf_to_image_toggle'] ) && $settings['pdf_to_image_notifications'] !== 'PDF' && ! PdfSecurity::is_password_protected( $settings ) ) {
 			/* Store via the form ID and notification ID so we can verify we're working on the correct notification during `gform_notification` */
 			$this->settings[ $form['id'] . ':' . $notification['id'] ] = $settings;
 		}

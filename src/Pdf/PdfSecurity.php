@@ -1,9 +1,6 @@
 <?php
 
-namespace GFPDF\Plugins\PdfToImage\Entry;
-
-use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
-use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
+namespace GFPDF\Plugins\PdfToImage\Pdf;
 
 /**
  * @package     Gravity PDF to Image
@@ -38,34 +35,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 */
 
 /**
- * Class AddImageLinkToEntryDetails
+ * Class PdfSecurity
  *
- * @package GFPDF\Plugins\PdfToImage\Entry
+ * @package GFPDF\Plugins\PdfToImage\Pdf
  */
-class AddImageLinkToEntryDetails {
+class PdfSecurity {
 
 	/**
-	 * @since 1.0
-	 */
-	public function init() {
-		add_action( 'gfpdf_entry_detail_post_pdf_links_markup', [ $this, 'add_image_link_to_entry_details' ] );
-	}
-
-	/**
-	 * If the PDF is configured, add it as an option to the Entry Details page
+	 * Check if the PDF is configured to be password protected
 	 *
-	 * @param array $pdf
+	 * @param array $settings
 	 *
-	 * @since 1.0
+	 * @return bool
 	 */
-	public function add_image_link_to_entry_details( $pdf ) {
-
-		if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) && ! PdfSecurity::is_password_protected( $pdf['settings'] ) ) {
-			echo sprintf(
-				'<a href="%s" class="button" target="_blank">%s</a>',
-				ImageUrl::get( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),
-				__( 'Image', 'gravity-pdf-to-image' )
-			);
-		}
+	public static function is_password_protected( $settings ) {
+		return $settings['security'] === 'Yes' && ! empty( $settings['password'] );
 	}
 }

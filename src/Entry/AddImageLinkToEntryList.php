@@ -3,6 +3,7 @@
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
 use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
+use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 
 /**
  * @package     Gravity PDF to Image
@@ -72,7 +73,7 @@ class AddImageLinkToEntryList {
 
 			$new_list[] = $pdf;
 
-			if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) ) {
+			if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) && ! PdfSecurity::is_password_protected( $pdf['settings'] ) ) {
 				$pdf['name']     = sprintf( __( 'Image: %s', 'gravity-pdf-to-image' ), $pdf['name'] );
 				$pdf['view']     = ImageUrl::get( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] );
 				$pdf['download'] = ImageUrl::get( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'], true );
