@@ -174,7 +174,7 @@ class AddImageToNotification {
 
 		/* If we had to generate a tmp PDF, reset the image name back to the original */
 		if ( $settings['security'] === 'Yes' ) {
-			$image_info->set_image_name( substr( strstr( $pdf->get_filename(), '@@' ), 2 ) );
+			$image_info->set_image_name( $this->get_original_pdf_filename( $pdf->get_filename() ) );
 		}
 
 		$pdf_absolute_path   = $pdf->get_absolute_path();
@@ -210,7 +210,7 @@ class AddImageToNotification {
 
 		/* We need to regenerate the PDF, so adjust the filename to not override the original PDF */
 		if ( $does_pdf_have_security_enabled ) {
-			$pdf->set_filename( time() . '@@' . $pdf->get_filename() );
+			$pdf->set_filename( $this->get_tmp_pdf_filename( $pdf->get_filename() ) );
 		}
 
 		/* If the PDF doesn't exist, generate */
@@ -219,6 +219,32 @@ class AddImageToNotification {
 		}
 
 		return $pdf;
+	}
+
+	/**
+	 * Return the original filename
+	 *
+	 * @param string $tmp_filename
+	 *
+	 * @return string
+	 *
+	 * @since 1.0
+	 */
+	public function get_original_pdf_filename( $tmp_filename ) {
+		return substr( strstr( $tmp_filename, '@@' ), 2 );
+	}
+
+	/**
+	 * Return a tmp PDF filename
+	 *
+	 * @param string $filename
+	 *
+	 * @return string
+	 *
+	 * @since 1.0
+	 */
+	public function get_tmp_pdf_filename( $filename ) {
+		return time() . '@@' . $filename;
 	}
 
 	/**
@@ -238,7 +264,8 @@ class AddImageToNotification {
 
 		/* Remove PDF if required */
 		if ( $settings['pdf_to_image_notifications'] === 'Image' ) {
-			$attachments = array_diff( $attachments, [ $pdf_absolute_path ] );
+			$pdf_absolute_path = dirname( $pdf_absolute_path ) . '/' . $this->get_original_pdf_filename( basename( $pdf_absolute_path ) );
+			$attachments       = array_diff( $attachments, [ $pdf_absolute_path ] );
 		}
 
 		return $attachments;
