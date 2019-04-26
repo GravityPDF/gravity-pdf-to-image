@@ -54,7 +54,7 @@ class AddImageToNotification {
 	}
 
 	public function init() {
-		add_action( 'gfpdf_post_generate_and_save_pdf_notification', [ $this, 'register_pdfs_to_convert_to_image' ], 10, 4 );
+		add_action( 'gfpdf_post_generate_and_save_pdf_notification', [ $this, 'register_pdf_to_convert_to_image' ], 10, 4 );
 		add_filter( 'gform_notification', [ $this, 'maybe_attach_files_to_notifications', ], 10000, 3 );
 	}
 
@@ -66,30 +66,48 @@ class AddImageToNotification {
 	 * @param $settings
 	 * @param $notification
 	 */
-	public function register_pdfs_to_convert_to_image( $form, $entry, $settings, $notification ) {
+	public function register_pdf_to_convert_to_image( $form, $entry, $settings, $notification ) {
 		$this->settings = [];
 		if ( ! empty( $settings['pdf_to_image_toggle'] ) && $settings['pdf_to_image_notifications'] !== 'PDF' ) {
-			$this->settings[ $notification['id'] ] = $settings;
+			/* Store via the form ID and notification ID so we can verify we're working on the correct notification during `gform_notification` */
+			$this->settings[ $form['id'] . ':' . $notification['id'] ] = $settings;
 		}
 	}
 
 	/**
+	 * Check if we have a valid PDF Image configuration and are processing the correct notification
 	 *
+	 * @param array $notification A Gravity Forms Notification
+	 * @param array $form         The Gravity Form
+	 * @param array $entry        The Gravity Form Entry
 	 *
-	 * @param $notification A Gravity Forms Notification
-	 * @param $form The Gravity Form
-	 * @param $entry The Gravity Form Entry
-	 *
-	 * @return array The $notification
+	 * @return array $notification
 	 * @throws \ImagickException
 	 *
 	 * @since 1.0
 	 */
 	public function maybe_attach_files_to_notifications( $notification, $form, $entry ) {
-		if ( count( $this->settings ) !== 1 || ! isset( $this->settings[ $notification['id'] ] ) ) {
+		if ( count( $this->settings ) !== 1 || ! isset( $this->settings[ $form['id'] . ':' . $notification['id'] ] ) ) {
 			return $notification;
 		}
 
+		$notification['attachments'] = $this->attach_files_to_notification( $notification['attachments'], $entry );
+
+		return $notification;
+	}
+
+	/**
+	 * Handle the Image/PDF Generation and attach to the notification based off the PDF settings
+	 *
+	 * @param array $attachments
+	 * @param array $entry
+	 *
+	 * @return array
+	 * @throws \ImagickException
+	 *
+	 * @since 1.0
+	 */
+	public function attach_files_to_notification( $attachments, $entry ) {
 		$settings = reset( $this->settings );
 
 		list(
@@ -98,27 +116,37 @@ class AddImageToNotification {
 			$image_absolute_path
 			) = $this->get_pdf_and_image_path_details( $entry, $settings );
 
-		/* Skip image generation and attach to Notification */
+		/* Image already exists. Skip image generation and attach to notification */
 		if ( is_file( $image_absolute_path ) ) {
-			$notification['attachments'] = $this->handle_attachments( $notification['attachments'], $image_absolute_path, $pdf_absolute_path );
+			$attachments = $this->handle_attachments( $attachments, $image_absolute_path, $pdf_absolute_path );
 
-			return $notification;
+			return $attachments;
 		}
 
 		/* @TODO if PDF doesnt exist, or password protected regenerate */
 		if ( ! is_file( $pdf_absolute_path ) ) {
-			return $notification;
+			return $attachments;
 		}
 
 		/* Convert PDF to Image and save to disk */
 		$image = new Generate( $pdf_absolute_path, ImageConfig::get( $settings ) );
-		$image->to_file( $image_tmp_directory ); /* @TODO pass in full image path with filename */
+		$image->to_file( $image_tmp_directory . $image->get_image_name() );
 
-		$notification['attachments'] = $this->handle_attachments( $notification['attachments'], $image_absolute_path, $pdf_absolute_path );
+		$attachments = $this->handle_attachments( $attachments, $image_absolute_path, $pdf_absolute_path );
 
-		return $notification;
+		return $attachments;
 	}
 
+	/**
+	 * Get the path details for the required files
+	 *
+	 * @param array $entry    The Gravity Form Entry
+	 * @param array $settings The Gravity PDF Form setting
+	 *
+	 * @return array
+	 *
+	 * @since 1.0
+	 */
 	public function get_pdf_and_image_path_details( $entry, $settings ) {
 		$pdf_info   = new PdfInfo( $entry, $settings );
 		$image_info = new Generate( $pdf_info->get_absolute_path(), ImageConfig::get( $settings ) );
@@ -134,6 +162,17 @@ class AddImageToNotification {
 		];
 	}
 
+	/**
+	 * Attach the generated image to the notification and remove the PDF (if needed)
+	 *
+	 * @param array  $attachments         The Notification attachments
+	 * @param string $image_absolute_path The path to the generated image
+	 * @param string $pdf_absolute_path   The path to the generated PDF
+	 *
+	 * @return array
+	 *
+	 * @since 1.0
+	 */
 	public function handle_attachments( $attachments, $image_absolute_path, $pdf_absolute_path ) {
 		$settings      = reset( $this->settings );
 		$attachments[] = $image_absolute_path;
