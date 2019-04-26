@@ -231,7 +231,12 @@ class AddImageToNotification {
 	 * @since 1.0
 	 */
 	public function get_original_pdf_filename( $tmp_filename ) {
-		return substr( strstr( $tmp_filename, '@@' ), 2 );
+		$position = strpos( $tmp_filename, '@@' );
+		if ( $position === false ) {
+			return $tmp_filename;
+		}
+
+		return substr( $tmp_filename, $position + 2 );
 	}
 
 	/**

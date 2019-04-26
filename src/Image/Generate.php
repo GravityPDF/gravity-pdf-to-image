@@ -105,8 +105,8 @@ class Generate {
 		$this->width          = abs( (int) $config['width'] );
 		$this->height         = abs( (int) $config['height'] );
 		$this->crop           = (bool) $config['crop'];
-		$this->image_filename = $this->set_image_name( basename( $this->file ) );
 
+		$this->set_image_name( basename( $this->file ) );
 		$this->check_if_valid_page();
 	}
 
