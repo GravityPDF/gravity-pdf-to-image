@@ -110,7 +110,8 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 		$attributes = shortcode_atts(
 			[
 				'id'      => '',
-				'text'    => 'Download Image',
+				'text'    => __( 'Download Image', 'gravity-pdf-to-image' ),
+				'alt'     => '',
 				'type'    => 'img',
 				'signed'  => '1',
 				'expires' => '',
@@ -158,7 +159,7 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 						$attributes['url'],
 						$attributes['width'],
 						$attributes['height'],
-						''
+						$attributes['alt']
 					);
 				break;
 
