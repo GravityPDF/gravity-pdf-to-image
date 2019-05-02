@@ -4,6 +4,7 @@ namespace GFPDF\Plugins\PdfToImage\Entry;
 
 use GFPDF\Plugins\PdfToImage\Image\Generate;
 use GFPDF\Plugins\PdfToImage\Image\ImageConfig;
+use GFPDF\Plugins\PdfToImage\Images\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfWrapper;
 
@@ -61,14 +62,19 @@ class AddImageToNotification {
 	protected $settings = [];
 
 	/**
+	 * @var Common
+	 */
+	protected $image;
+
+	/**
 	 * AddImageToNotification constructor.
 	 *
-	 * @param string $tmp_path
-	 *
-	 * @since 1.0
+	 * @param Common $image
+	 * @param        $tmp_path
 	 */
-	public function __construct( $tmp_path ) {
+	public function __construct( Common $image, $tmp_path ) {
 		$this->tmp_path = $tmp_path;
+		$this->image    = $image;
 	}
 
 	/**
@@ -144,7 +150,7 @@ class AddImageToNotification {
 		}
 
 		/* Convert PDF to Image and save to disk */
-		$image = new Generate( $pdf_absolute_path, ImageConfig::get( $settings ) );
+		$image = new Generate( $pdf_absolute_path, $this->image->get_settings( $settings ) );
 		$image->to_file( $image_absolute_path );
 
 		$attachments = $this->handle_attachments( $attachments, $image_absolute_path, $pdf_absolute_path );
@@ -170,7 +176,7 @@ class AddImageToNotification {
 	 */
 	protected function get_pdf_and_image_path_details( $entry, $settings ) {
 		$pdf        = $this->maybe_generate_tmp_pdf( $entry, $settings );
-		$image_info = new Generate( $pdf->get_absolute_path(), ImageConfig::get( $settings ) );
+		$image_info = new Generate( $pdf->get_absolute_path(), $this->image->get_settings( $settings ) );
 
 		/* If we had to generate a tmp PDF, reset the image name back to the original */
 		if ( $settings['security'] === 'Yes' ) {

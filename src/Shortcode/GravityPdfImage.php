@@ -2,11 +2,15 @@
 
 namespace GFPDF\Plugins\PdfToImage\Shortcode;
 
-use GFPDF\Helper\Helper_Abstract_Form;
-use GFPDF\Helper\Helper_Misc;
-use GFPDF\Helper\Helper_Sha256_Url_Signer;
+use GFPDF\Exceptions\GravityPdfShortcodeEntryIdException;
+use GFPDF\Exceptions\GravityPdfShortcodePdfConditionalLogicFailedException;
+use GFPDF\Exceptions\GravityPdfShortcodePdfConfigNotFoundException;
+use GFPDF\Exceptions\GravityPdfShortcodePdfInactiveException;
+use GFPDF\Helper\Helper_Abstract_Pdf_Shortcode;
 use GFPDF\Plugins\PdfToImage\Image\ImageConfig;
 use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
+use GFPDF\Plugins\PdfToImage\Images\Common;
+use GPDFAPI;
 
 /**
  * @package     Gravity PDF to Image
@@ -40,25 +44,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/* @TODO - REFRACTOR Model_Shortcode so we can extend it */
-
 /**
  * Class GravityPdfImage
  *
- * @package GFPDF\Plugins\PdfToImage
+ * @package GFPDF\Plugins\PdfToImage\Shortcode
  */
-class GravityPdfImage {
+class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 
+	/**
+	 * @since 1.0
+	 */
 	const SHORTCODE = 'gravitypdfimage';
 
-	protected $gform;
-	protected $misc;
+	/**
+	 * @var bool
+	 */
+	protected $debug;
 
-	public function __construct( Helper_Abstract_Form $gform, Helper_Misc $misc ) {
-		$this->gform = $gform;
-		$this->misc  = $misc;
-	}
+	/**
+	 * @var Common
+	 */
+	protected $image;
 
+	/**
+	 * @since 1.0
+	 */
 	public function init() {
 		add_shortcode( self::SHORTCODE, [ $this, 'process' ] );
 
@@ -69,13 +79,38 @@ class GravityPdfImage {
 		add_filter( 'gravityview/fields/custom/content_before', [ $this, 'gravitypdf_gravityview_custom' ], 10 );
 	}
 
+
+	/**
+	 * @param $debug
+	 */
+	public function set_debug_mode( $debug ) {
+		$this->debug = (bool) $debug;
+	}
+
+	/**
+	 * @param Common $image
+	 */
+	public function set_image( Common $image ) {
+		$this->image = $image;
+	}
+
+	/**
+	 * @param array $attributes
+	 *
+	 * @return string
+	 *
+	 * @since 1.0
+	 */
 	public function process( $attributes ) {
+
+		$controller           = GPDFAPI::get_mvc_class( 'Controller_Shortcode' );
+		$has_view_permissions = $this->debug && $this->gform->has_capability( 'gravityforms_view_entries' );
 
 		/* Merge in standard defaults */
 		$attributes = shortcode_atts(
 			[
 				'id'      => '',
-				'text'    => '',
+				'text'    => 'Download Image',
 				'type'    => 'img',
 				'signed'  => '1',
 				'expires' => '',
@@ -88,47 +123,67 @@ class GravityPdfImage {
 			self::SHORTCODE
 		);
 
-		$entry_id = $this->get_entry_id_if_empty( $attributes['entry'] );
-		$settings = $this->get_pdf_config( $entry_id, $attributes['id'] );
+		$attributes = apply_filters( 'gfpdf_gravitypdfimage_shortcode_attributes', $attributes );
 
-		$image_settings = ImageConfig::get( $settings );
+		try {
+			$entry_id       = $this->get_entry_id_if_empty( $attributes['entry'] );
+			$settings       = $this->get_pdf_config( $entry_id, $attributes['id'] );
+			$image_settings = $this->image->get_settings( $settings );
 
-		$url = ImageUrl::get( $settings['id'], $entry_id, $image_settings['page'], false, false );
+			$type     = $attributes['type'];
+			$download = $attributes['type'] === 'download';
+			$empty    = ! empty( $attributes['signed'] );
+			$raw      = ! empty( $attributes['raw'] );
 
-		if ( ! empty( $attributes['signed'] ) ) {
-			$url = $this->sign_url( $url, $attributes['expires'] );
+			$url = $this->image->get_url( $settings['id'], $entry_id, $image_settings['page'], $download, false );
+
+
+			if ( $empty ) {
+				$attributes['url'] = $this->sign_url( $url, $attributes['expires'] );
+			}
+
+			if ( $raw ) {
+				return $attributes['url'];
+			}
+
+			$attributes['url'] = esc_attr( $attributes['url'] );
+
+			/* Output a raw image, or a view / download link */
+			switch ( $type ) {
+				case 'img':
+					return sprintf( '<img src="%s" />', $attributes['url'] );
+				break;
+
+				default:
+					return $controller->view->display_gravitypdf_shortcode( $attributes );
+				break;
+			}
+		} catch ( GravityPdfShortcodeEntryIdException $e ) {
+			return $has_view_permissions ? $controller->view->no_entry_id() : '';
+		} catch ( GravityPdfShortcodePdfConfigNotFoundException $e ) {
+			return $has_view_permissions ? $controller->view->invalid_pdf_config() : '';
+		} catch ( GravityPdfShortcodePdfInactiveException $e ) {
+			return $has_view_permissions ? $controller->view->pdf_not_active() : '';
+		} catch ( GravityPdfShortcodePdfConditionalLogicFailedException $e ) {
+			return $has_view_permissions ? $controller->view->conditional_logic_not_met() : '';
+		} catch ( \Exception $e ) {
+			return $has_view_permissions ? $e->getMessage() : '';
 		}
-
-		return "<img src='$url' />";
 	}
 
-	protected function get_entry_id_if_empty( $entry_id ) {
-		if ( ! empty( $entry_id ) ) {
-			return $entry_id;
-		}
-
-		if ( isset( $_GET['lid'], $_GET['entry'] ) ) {
-			return isset( $_GET['lid'] ) ? (int) $_GET['lid'] : (int) $_GET['entry'];
-		}
-
-		throw new \Exception( 'shortcode_entry_id_not_found' );
-	}
-
+	/**
+	 * @param int    $entry_id
+	 * @param string $pdf_id
+	 *
+	 * @return array
+	 * @throws GravityPdfShortcodePdfConditionalLogicFailedException
+	 * @throws GravityPdfShortcodePdfConfigNotFoundException
+	 * @throws GravityPdfShortcodePdfInactiveException
+	 *
+	 * @since 1.0
+	 */
 	protected function get_pdf_config( $entry_id, $pdf_id ) {
-		$entry    = $this->gform->get_entry( $entry_id );
-		$settings = ! is_wp_error( $entry ) ? \GPDFAPI::get_pdf( $entry['form_id'], $pdf_id ) : $entry;
-
-		if ( is_wp_error( $settings ) ) {
-			throw new \Exception( 'form_pdf_config_not_found' );
-		}
-
-		if ( $settings['active'] !== true ) {
-			throw new \Exception( 'pdf_is_inactive' );
-		}
-
-		if ( isset( $settings['conditionalLogic'] ) && ! $this->misc->evaluate_conditional_logic( $settings['conditionalLogic'], $entry ) ) {
-			throw new \Exception( 'pdf_conditional_logic_not_met' );
-		}
+		$settings = parent::get_pdf_config( $entry_id, $pdf_id );
 
 		if ( empty( $settings['pdf_to_image_toggle'] ) ) {
 			throw new \Exception( 'image_not_enabled_for_pdf' );
@@ -136,129 +191,4 @@ class GravityPdfImage {
 
 		return $settings;
 	}
-
-	protected function sign_url( $url, $expires ) {
-		$secret_key = \GPDFAPI::get_plugin_option( 'signed_secret_token', '' );
-
-		/* If no secret key exists, generate it */
-		if ( empty( $secret_key ) ) {
-			$secret_key = wp_generate_password( 64 );
-			\GPDFAPI::update_plugin_option( 'signed_secret_token', $secret_key );
-		}
-
-		$url_signer = new Helper_Sha256_Url_Signer( $secret_key );
-
-		if ( empty( $expires ) ) {
-			$expires = intval( \GPDFAPI::get_plugin_option( 'logged_out_timeout', '20' ) ) . ' minutes';
-		}
-
-		$date    = new \DateTime();
-		$timeout = $date->modify( $expires );
-
-		return $url_signer->sign( $url, $timeout );
-	}
-
-	public function gravitypdf_confirmation( $confirmation, $form, $entry ) {
-
-		/* check if confirmation is text-based */
-		if ( ! is_array( $confirmation ) ) {
-			$confirmation = $this->add_entry_id_to_shortcode( $confirmation, $entry['id'] );
-		}
-
-		return $confirmation;
-	}
-
-	public function gravitypdf_notification( $notification, $form, $entry ) {
-
-		/* check if notification has a 'message' */
-		if ( isset( $notification['message'] ) ) {
-			$notification['message'] = $this->add_entry_id_to_shortcode( $notification['message'], $entry['id'] );
-		}
-
-		return $notification;
-	}
-
-	public function gravitypdf_gravityview_custom( $html ) {
-		$gravityview_view = GravityView_View::getInstance();
-		$entry            = $gravityview_view->getCurrentEntry();
-
-		return $this->add_entry_id_to_shortcode( $html, $entry['id'] );
-	}
-
-	protected function add_entry_id_to_shortcode( $string, $entry_id ) {
-
-		$gravitypdf = $this->get_shortcode_information( 'gravitypdfimage', $string );
-
-		if ( count( $gravitypdf ) > 0 ) {
-			foreach ( $gravitypdf as $shortcode ) {
-				/* if the user hasn't explicitely defined an entry to display... */
-				if ( ! isset( $shortcode['attr']['entry'] ) ) {
-					/* get the new shortcode information */
-					$new_shortcode = $this->add_shortcode_attr( $shortcode, 'entry', $entry_id );
-
-					/* update our confirmation message */
-					$string = str_replace( $shortcode['shortcode'], $new_shortcode['shortcode'], $string );
-				}
-			}
-		}
-
-		return $string;
-	}
-
-	public function add_shortcode_attr( $code, $attr, $value ) {
-
-		/* if the attribute doesn't already exist... */
-		if ( ! isset( $code['attr'][ $attr ] ) ) {
-
-			$raw_attr = "{$code['attr_raw']} {$attr}=\"{$value}\"";
-
-			/* if there are no attributes at all we'll need to fix our str replace */
-			if ( 0 === strlen( $code['attr_raw'] ) ) {
-				$pattern           = '^\[([a-zA-Z]+)';
-				$code['shortcode'] = preg_replace( "/$pattern/s", "[$1 {$attr}=\"{$value}\"", $code['shortcode'] );
-			} else {
-				$code['shortcode'] = str_ireplace( $code['attr_raw'], $raw_attr, $code['shortcode'] );
-			}
-
-			$code['attr_raw'] = $raw_attr;
-
-		} else { /* replace the current attribute */
-			$pattern           = $attr . '="(.+?)"';
-			$code['shortcode'] = preg_replace( "/$pattern/si", $attr . '="' . $value . '"', $code['shortcode'] );
-			$code['attr_raw']  = preg_replace( "/$pattern/si", $attr . '="' . $value . '"', $code['attr_raw'] );
-		}
-
-		/* Update the actual attribute */
-		$code['attr'][ $attr ] = $value;
-
-		return $code;
-	}
-
-	public function get_shortcode_information( $shortcode, $text ) {
-		$shortcodes = [];
-
-		if ( has_shortcode( $text, $shortcode ) ) {
-			/* our shortcode exists so parse the shortcode data and return an easy-to-use array */
-			preg_match_all( '/' . get_shortcode_regex( [ $shortcode ] ) . '/', $text, $matches, PREG_SET_ORDER );
-
-			if ( empty( $matches ) ) {
-				return $shortcodes;
-			}
-
-			foreach ( $matches as $item ) {
-				if ( $shortcode === $item[2] ) {
-					$attr = shortcode_parse_atts( $item[3] );
-
-					$shortcodes[] = [
-						'shortcode' => $item[0],
-						'attr_raw'  => $item[3],
-						'attr'      => ( is_array( $attr ) ) ? $attr : [],
-					];
-				}
-			}
-		}
-
-		return $shortcodes;
-	}
-
 }

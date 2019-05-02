@@ -3,6 +3,7 @@
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
 use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
+use GFPDF\Plugins\PdfToImage\Images\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 
 /**
@@ -45,6 +46,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 class AddImageLinkToEntryList {
 
 	/**
+	 * @var Common
+	 */
+	protected $image;
+
+	/**
+	 * AddImageLinkToEntryList constructor.
+	 *
+	 * @param Common $image
+	 */
+	public function __construct( Common $image ) {
+		$this->image = $image;
+	}
+
+	/**
 	 * Only run on the Gravity Forms Entry List Admin Page
 	 *
 	 * @since 1.0
@@ -75,8 +90,8 @@ class AddImageLinkToEntryList {
 
 			if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) && ! PdfSecurity::is_password_protected( $pdf['settings'] ) ) {
 				$pdf['name']     = sprintf( __( 'Image: %s', 'gravity-pdf-to-image' ), $pdf['name'] );
-				$pdf['view']     = ImageUrl::get( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] );
-				$pdf['download'] = ImageUrl::get( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'], true );
+				$pdf['view']     = $this->image->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] );
+				$pdf['download'] = $this->image->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'], true );
 
 				$new_list[] = $pdf;
 			}

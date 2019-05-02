@@ -2,9 +2,11 @@
 
 namespace GFPDF\Plugins\PdfToImage;
 
+use GFPDF\Helper\Helper_Url_Signer;
 use GFPDF\Plugins\PdfToImage\Entry\AddImageLinkToEntryDetails;
 use GFPDF\Plugins\PdfToImage\Entry\AddImageLinkToEntryList;
 use GFPDF\Plugins\PdfToImage\Entry\AddImageToNotification;
+use GFPDF\Plugins\PdfToImage\Images\Common;
 use GFPDF\Plugins\PdfToImage\Options\AddPdfToImageFields;
 use GFPDF\Plugins\PdfToImage\Permalink\Register;
 use GFPDF\Plugins\PdfToImage\Image\Listener;
@@ -70,8 +72,11 @@ class Bootstrap extends Helper_Abstract_Addon {
 	public function init( $classes = [] ) {
 
 		/* Setup a temporary location for the PDF to Images files */
-		$data                             = GPDFAPI::get_data_class();
-		$data->pdf_to_images_tmp_location = $data->template_tmp_location . 'pdf-to-images/';
+		$this->data->pdf_to_images_tmp_location = $this->data->template_tmp_location . 'pdf-to-images/';
+
+		$shortcode = new GravityPdfImage( GPDFAPI::get_form_class(), $this->log, $this->options, GPDFAPI::get_misc_class(), new Helper_Url_Signer() );
+		$shortcode->set_debug_mode( $this->options->get_option( 'debug_mode', 'No' ) === 'Yes' );
+		$shortcode->set_image( new Common() );
 
 		/* Register our classes and pass back up to the parent initialiser */
 		$classes = array_merge(
@@ -80,10 +85,11 @@ class Bootstrap extends Helper_Abstract_Addon {
 				new Register(),
 				new Listener(),
 				new AddPdfToImageFields( GPDFAPI::get_misc_class(), GPDFAPI::get_options_class() ),
-				new AddImageLinkToEntryList(),
-				new AddImageLinkToEntryDetails(),
-				new AddImageToNotification( $data->pdf_to_images_tmp_location ),
+				new AddImageLinkToEntryList( new Common() ),
+				new AddImageLinkToEntryDetails( new Common() ),
+				new AddImageToNotification( new Common(), $this->data->pdf_to_images_tmp_location ),
 				new GravityPdfImage( GPDFAPI::get_form_class(), GPDFAPI::get_misc_class() ),
+				$shortcode,
 			]
 		);
 

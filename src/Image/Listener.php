@@ -3,6 +3,7 @@
 namespace GFPDF\Plugins\PdfToImage\Image;
 
 use GFPDF\Helper\Helper_PDF;
+use GFPDF\Plugins\PdfToImage\Images\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 
 /**
@@ -43,6 +44,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package GFPDF\Plugins\PdfToImage\Image
  */
 class Listener {
+
+	/**
+	 * @var Common
+	 */
+	protected $image;
+
+	/**
+	 * Listener constructor.
+	 *
+	 * @param Common $image
+	 */
+	public function __construct( Common $image ) {
+		$this->image = $image;
+	}
+
 	public function init() {
 		add_action( 'gfpdf_pre_pdf_generation_output', [ $this, 'maybe_generate_image_from_pdf' ], 10, 5 );
 	}
@@ -72,7 +88,7 @@ class Listener {
 			wp_die( __( 'Password protected PDFs cannot be converted to images.', 'gravity-pdf-to-image' ) );
 		}
 
-		$image_config         = ImageConfig::get( $settings );
+		$image_config         = $this->image->get_settings( $settings );
 		$image_config['page'] = $page;
 
 		/* Disable PDF encryption which prevents Imagick from loading the PDF */

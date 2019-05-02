@@ -3,6 +3,7 @@
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
 use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
+use GFPDF\Plugins\PdfToImage\Images\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 
 /**
@@ -43,6 +44,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package GFPDF\Plugins\PdfToImage\Entry
  */
 class AddImageLinkToEntryDetails {
+	/**
+	 * @var Common
+	 */
+	protected $image;
+
+	/**
+	 * AddImageLinkToEntryDetails constructor.
+	 *
+	 * @param Common $image
+	 */
+	public function __construct( Common $image ) {
+		$this->image = $image;
+	}
 
 	/**
 	 * @since 1.0
@@ -63,7 +77,7 @@ class AddImageLinkToEntryDetails {
 		if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) && ! PdfSecurity::is_password_protected( $pdf['settings'] ) ) {
 			echo sprintf(
 				'<a href="%s" class="button" target="_blank">%s</a>',
-				ImageUrl::get( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),
+				$this->image->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),
 				__( 'Image', 'gravity-pdf-to-image' )
 			);
 		}
