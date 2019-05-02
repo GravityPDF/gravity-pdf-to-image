@@ -118,6 +118,8 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 				'classes' => '',
 				'entry'   => '',
 				'raw'     => '',
+				'width'   => '',
+				'height'  => '',
 			],
 			$attributes,
 			self::SHORTCODE
@@ -151,7 +153,7 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 			/* Output a raw image, or a view / download link */
 			switch ( $type ) {
 				case 'img':
-					return sprintf( '<img src="%s" />', $attributes['url'] );
+					return sprintf( '<img src="%s" width="%s", height="%s" />', $attributes['url'], $attributes['width'], $attributes['height'] );
 				break;
 
 				default:
