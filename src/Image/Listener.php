@@ -94,6 +94,8 @@ class Listener {
 			wp_die( __( 'Password protected PDFs cannot be converted to images.', 'gravity-pdf-to-image' ) );
 		}
 
+		/* TODO - for performance, do like the notifications and pull see if the image is already saved to disk */
+
 		$image_config         = $this->image->get_settings( $settings );
 		$image_config['page'] = $page;
 

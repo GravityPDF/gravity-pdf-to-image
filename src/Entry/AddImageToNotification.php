@@ -74,8 +74,9 @@ class AddImageToNotification {
 	/**
 	 * AddImageToNotification constructor.
 	 *
-	 * @param Common $image
-	 * @param        $tmp_path
+	 * @param Common      $image
+	 * @param PdfSecurity $pdf_security
+	 * @param             $tmp_path
 	 */
 	public function __construct( Common $image, PdfSecurity $pdf_security, $tmp_path ) {
 		$this->tmp_path     = $tmp_path;
