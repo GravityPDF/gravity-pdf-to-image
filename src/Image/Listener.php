@@ -3,7 +3,7 @@
 namespace GFPDF\Plugins\PdfToImage\Image;
 
 use GFPDF\Helper\Helper_PDF;
-use GFPDF\Plugins\PdfToImage\Images\Common;
+use GFPDF\Plugins\PdfToImage\Image\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 
 /**
@@ -51,12 +51,18 @@ class Listener {
 	protected $image;
 
 	/**
+	 * @var PdfSecurity
+	 */
+	protected $pdf_security;
+
+	/**
 	 * Listener constructor.
 	 *
 	 * @param Common $image
 	 */
-	public function __construct( Common $image ) {
-		$this->image = $image;
+	public function __construct( Common $image, PdfSecurity $security ) {
+		$this->image        = $image;
+		$this->pdf_security = $security;
 	}
 
 	public function init() {
@@ -84,7 +90,7 @@ class Listener {
 		}
 
 		/* If PDF password protected, throw error */
-		if ( PdfSecurity::is_password_protected( $settings ) ) {
+		if ( $this->pdf_security->is_password_protected( $settings ) ) {
 			wp_die( __( 'Password protected PDFs cannot be converted to images.', 'gravity-pdf-to-image' ) );
 		}
 

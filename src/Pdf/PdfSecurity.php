@@ -48,7 +48,7 @@ class PdfSecurity {
 	 *
 	 * @return bool
 	 */
-	public static function is_password_protected( $settings ) {
+	public function is_password_protected( $settings ) {
 		return $settings['security'] === 'Yes' && ! empty( $settings['password'] );
 	}
 }

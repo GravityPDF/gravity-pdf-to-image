@@ -9,7 +9,7 @@ use GFPDF\Exceptions\GravityPdfShortcodePdfInactiveException;
 use GFPDF\Helper\Helper_Abstract_Pdf_Shortcode;
 use GFPDF\Plugins\PdfToImage\Image\ImageConfig;
 use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
-use GFPDF\Plugins\PdfToImage\Images\Common;
+use GFPDF\Plugins\PdfToImage\Image\Common;
 use GPDFAPI;
 
 /**
@@ -103,7 +103,7 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 	 */
 	public function process( $attributes ) {
 
-		$controller           = GPDFAPI::get_mvc_class( 'Controller_Shortcode' );
+		$controller           = GPDFAPI::get_mvc_class( 'Controller_Shortcodes' );
 		$has_view_permissions = $this->debug && $this->gform->has_capability( 'gravityforms_view_entries' );
 
 		/* Merge in standard defaults */
@@ -134,14 +134,14 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 
 			$type     = $attributes['type'];
 			$download = $attributes['type'] === 'download';
-			$empty    = ! empty( $attributes['signed'] );
+			$signed   = ! empty( $attributes['signed'] );
 			$raw      = ! empty( $attributes['raw'] );
 
-			$url = $this->image->get_url( $settings['id'], $entry_id, $image_settings['page'], $download, false );
+			$attributes['url'] = $this->image->get_url( $settings['id'], $entry_id, $image_settings['page'], $download, false );
 
 
-			if ( $empty ) {
-				$attributes['url'] = $this->sign_url( $url, $attributes['expires'] );
+			if ( $signed ) {
+				$attributes['url'] = $this->url_signer->sign( $attributes['url'], $attributes['expires'] );
 			}
 
 			if ( $raw ) {
@@ -153,7 +153,13 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 			/* Output a raw image, or a view / download link */
 			switch ( $type ) {
 				case 'img':
-					return sprintf( '<img src="%s" width="%s", height="%s" />', $attributes['url'], $attributes['width'], $attributes['height'] );
+					return sprintf(
+						'<img src="%1$s" width="%2$s" height="%3$s" alt="%4$s" />',
+						$attributes['url'],
+						$attributes['width'],
+						$attributes['height'],
+						''
+					);
 				break;
 
 				default:

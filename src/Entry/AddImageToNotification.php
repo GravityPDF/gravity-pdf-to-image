@@ -4,7 +4,7 @@ namespace GFPDF\Plugins\PdfToImage\Entry;
 
 use GFPDF\Plugins\PdfToImage\Image\Generate;
 use GFPDF\Plugins\PdfToImage\Image\ImageConfig;
-use GFPDF\Plugins\PdfToImage\Images\Common;
+use GFPDF\Plugins\PdfToImage\Image\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfWrapper;
 
@@ -67,14 +67,20 @@ class AddImageToNotification {
 	protected $image;
 
 	/**
+	 * @var PdfSecurity
+	 */
+	protected $pdf_security;
+
+	/**
 	 * AddImageToNotification constructor.
 	 *
 	 * @param Common $image
 	 * @param        $tmp_path
 	 */
-	public function __construct( Common $image, $tmp_path ) {
-		$this->tmp_path = $tmp_path;
-		$this->image    = $image;
+	public function __construct( Common $image, PdfSecurity $pdf_security, $tmp_path ) {
+		$this->tmp_path     = $tmp_path;
+		$this->pdf_security = $pdf_security;
+		$this->image        = $image;
 	}
 
 	/**
@@ -95,7 +101,7 @@ class AddImageToNotification {
 	 */
 	public function register_pdf_to_convert_to_image( $form, $entry, $settings, $notification ) {
 		$this->settings = [];
-		if ( ! empty( $settings['pdf_to_image_toggle'] ) && $settings['pdf_to_image_notifications'] !== 'PDF' && ! PdfSecurity::is_password_protected( $settings ) ) {
+		if ( ! empty( $settings['pdf_to_image_toggle'] ) && $settings['pdf_to_image_notifications'] !== 'PDF' && ! $this->pdf_security->is_password_protected( $settings ) ) {
 			/* Store via the form ID and notification ID so we can verify we're working on the correct notification during `gform_notification` */
 			$this->settings[ $form['id'] . ':' . $notification['id'] ] = $settings;
 		}

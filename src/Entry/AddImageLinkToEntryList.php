@@ -3,7 +3,7 @@
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
 use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
-use GFPDF\Plugins\PdfToImage\Images\Common;
+use GFPDF\Plugins\PdfToImage\Image\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 
 /**
@@ -51,12 +51,18 @@ class AddImageLinkToEntryList {
 	protected $image;
 
 	/**
+	 * @var PdfSecurity
+	 */
+	protected $pdf_security;
+
+	/**
 	 * AddImageLinkToEntryList constructor.
 	 *
 	 * @param Common $image
 	 */
-	public function __construct( Common $image ) {
-		$this->image = $image;
+	public function __construct( Common $image, PdfSecurity $pdf_security ) {
+		$this->image        = $image;
+		$this->pdf_security = $pdf_security;
 	}
 
 	/**
@@ -88,7 +94,7 @@ class AddImageLinkToEntryList {
 
 			$new_list[] = $pdf;
 
-			if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) && ! PdfSecurity::is_password_protected( $pdf['settings'] ) ) {
+			if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) && ! $this->pdf_security->is_password_protected( $pdf['settings'] ) ) {
 				$pdf['name']     = sprintf( __( 'Image: %s', 'gravity-pdf-to-image' ), $pdf['name'] );
 				$pdf['view']     = $this->image->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] );
 				$pdf['download'] = $this->image->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'], true );

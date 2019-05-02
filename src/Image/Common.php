@@ -1,6 +1,6 @@
 <?php
 
-namespace GFPDF\Plugins\PdfToImage\Images;
+namespace GFPDF\Plugins\PdfToImage\Image;
 
 /**
  * @package     Gravity PDF to Image

@@ -3,7 +3,7 @@
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
 use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
-use GFPDF\Plugins\PdfToImage\Images\Common;
+use GFPDF\Plugins\PdfToImage\Image\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 
 /**
@@ -50,12 +50,18 @@ class AddImageLinkToEntryDetails {
 	protected $image;
 
 	/**
+	 * @var PdfSecurity
+	 */
+	protected $pdf_security;
+
+	/**
 	 * AddImageLinkToEntryDetails constructor.
 	 *
 	 * @param Common $image
 	 */
-	public function __construct( Common $image ) {
-		$this->image = $image;
+	public function __construct( Common $image, PdfSecurity $pdf_security ) {
+		$this->image        = $image;
+		$this->pdf_security = $pdf_security;
 	}
 
 	/**
@@ -74,7 +80,7 @@ class AddImageLinkToEntryDetails {
 	 */
 	public function add_image_link_to_entry_details( $pdf ) {
 
-		if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) && ! PdfSecurity::is_password_protected( $pdf['settings'] ) ) {
+		if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) && ! $this->pdf_security->is_password_protected( $pdf['settings'] ) ) {
 			echo sprintf(
 				'<a href="%s" class="button" target="_blank">%s</a>',
 				$this->image->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),
