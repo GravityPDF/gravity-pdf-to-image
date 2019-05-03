@@ -64,7 +64,7 @@ class AddImageToNotification {
 	/**
 	 * @var Common
 	 */
-	protected $image;
+	protected $image_common;
 
 	/**
 	 * @var PdfSecurity
@@ -74,14 +74,14 @@ class AddImageToNotification {
 	/**
 	 * AddImageToNotification constructor.
 	 *
-	 * @param Common      $image
+	 * @param Common      $image_common
 	 * @param PdfSecurity $pdf_security
 	 * @param             $tmp_path
 	 */
-	public function __construct( Common $image, PdfSecurity $pdf_security, $tmp_path ) {
+	public function __construct( Common $image_common, PdfSecurity $pdf_security, $tmp_path ) {
 		$this->tmp_path     = $tmp_path;
 		$this->pdf_security = $pdf_security;
-		$this->image        = $image;
+		$this->image_common = $image_common;
 	}
 
 	/**
@@ -157,7 +157,7 @@ class AddImageToNotification {
 		}
 
 		/* Convert PDF to Image and save to disk */
-		$image = new Generate( $pdf_absolute_path, $this->image->get_settings( $settings ) );
+		$image = new Generate( $this->image_common, $pdf_absolute_path, $this->image_common->get_settings( $settings ) );
 		$image->to_file( $image_absolute_path );
 
 		$attachments = $this->handle_attachments( $attachments, $image_absolute_path, $pdf_absolute_path );
@@ -183,7 +183,7 @@ class AddImageToNotification {
 	 */
 	protected function get_pdf_and_image_path_details( $entry, $settings ) {
 		$pdf        = $this->maybe_generate_tmp_pdf( $entry, $settings );
-		$image_info = new Generate( $pdf->get_absolute_path(), $this->image->get_settings( $settings ) );
+		$image_info = new Generate( $this->image_common, $pdf->get_absolute_path(), $this->image_common->get_settings( $settings ) );
 
 		/* If we had to generate a tmp PDF, reset the image name back to the original */
 		if ( $settings['security'] === 'Yes' ) {

@@ -34,6 +34,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+/**
+ * Class Common
+ *
+ * @package GFPDF\Plugins\PdfToImage\Image
+ */
 class Common {
 
 	/**
@@ -108,5 +113,16 @@ class Common {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Converts the PDF name to the associated image name
+	 *
+	 * @param string $file
+	 *
+	 * @return string
+	 */
+	public function get_name_from_pdf( $file ) {
+		return sprintf( '%s.jpg', basename( $file, '.pdf' ) );
 	}
 }

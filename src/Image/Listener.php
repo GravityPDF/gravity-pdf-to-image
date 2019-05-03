@@ -3,8 +3,8 @@
 namespace GFPDF\Plugins\PdfToImage\Image;
 
 use GFPDF\Helper\Helper_PDF;
-use GFPDF\Plugins\PdfToImage\Image\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
+use Mpdf\Output\Destination;
 
 /**
  * @package     Gravity PDF to Image
@@ -48,7 +48,7 @@ class Listener {
 	/**
 	 * @var Common
 	 */
-	protected $image;
+	protected $image_common;
 
 	/**
 	 * @var PdfSecurity
@@ -56,13 +56,21 @@ class Listener {
 	protected $pdf_security;
 
 	/**
+	 * @var string
+	 */
+	protected $tmp_path;
+
+	/**
 	 * Listener constructor.
 	 *
-	 * @param Common $image
+	 * @param Common      $image_common
+	 * @param PdfSecurity $security
+	 * @param             $tmp_path
 	 */
-	public function __construct( Common $image, PdfSecurity $security ) {
-		$this->image        = $image;
+	public function __construct( Common $image_common, PdfSecurity $security, $tmp_path ) {
+		$this->image_common = $image_common;
 		$this->pdf_security = $security;
+		$this->tmp_path     = $tmp_path;
 	}
 
 	public function init() {
@@ -94,20 +102,31 @@ class Listener {
 			wp_die( __( 'Password protected PDFs cannot be converted to images.', 'gravity-pdf-to-image' ) );
 		}
 
-		/* TODO - for performance, do like the notifications and pull see if the image is already saved to disk */
-
-		$image_config         = $this->image->get_settings( $settings );
+		$image_config         = $this->image_common->get_settings( $settings );
 		$image_config['page'] = $page;
 
-		/* Disable PDF encryption which prevents Imagick from loading the PDF */
-		$mpdf->encrypted = false;
+		/* Serve image if it already exists (cached for up to 24 hours) */
+		$image_tmp_directory = $this->tmp_path . $entry['form_id'] . $entry['id'] . '/';
+		$image_name          = $this->image_common->get_name_from_pdf( $helper_pdf->get_filename() );
+		$image_absolute_path = $image_tmp_directory . $image_name;
 
-		$image = new Generate( $helper_pdf->save_pdf( $mpdf->Output( '', \Mpdf\Output\Destination::STRING_RETURN ) ), $image_config );
+		$image_data = null;
+		if ( is_file( $image_absolute_path ) ) {
+			$image_data = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
+			$image      = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config + [ 'skip_validation' => true ] );
+		} else {
+			/* Image doesn't exist. Save PDF to disk, validate and generate */
+			$mpdf->encrypted = false;
+			$helper_pdf->save_pdf( $mpdf->Output( '', Destination::STRING_RETURN ) );
+			$image = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config );
+			$image->to_file( $image_absolute_path );
+			$image_data = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
+		}
 
 		if ( $subaction === 'download' ) {
-			$image->to_download();
+			$image->to_download( $image_data );
 		} else {
-			$image->to_screen();
+			$image->to_screen( $image_data );
 		}
 
 		wp_die();

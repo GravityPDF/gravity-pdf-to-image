@@ -47,6 +47,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Generate {
 
 	/**
+	 * @var Common
+	 */
+	protected $common;
+
+	/**
 	 * @var string Path to PDF
 	 */
 	protected $file;
@@ -86,7 +91,9 @@ class Generate {
 	 */
 	protected $crop;
 
-	public function __construct( $file, $config = [] ) {
+	public function __construct( Common $common, $file, $config = [] ) {
+
+		$this->common = $common;
 
 		/* Override defaults with user-defined configuration */
 		$config = array_merge( [
@@ -98,16 +105,19 @@ class Generate {
 			'crop'    => false,
 		], $config );
 
-		$this->file           = $file;
-		$this->page           = (int) $config['page'];
-		$this->dpi            = abs( (int) $config['dpi'] );
-		$this->quality        = abs( (int) $config['quality'] );
-		$this->width          = abs( (int) $config['width'] );
-		$this->height         = abs( (int) $config['height'] );
-		$this->crop           = (bool) $config['crop'];
+		$this->file    = $file;
+		$this->page    = (int) $config['page'];
+		$this->dpi     = abs( (int) $config['dpi'] );
+		$this->quality = abs( (int) $config['quality'] );
+		$this->width   = abs( (int) $config['width'] );
+		$this->height  = abs( (int) $config['height'] );
+		$this->crop    = (bool) $config['crop'];
 
 		$this->set_image_name( basename( $this->file ) );
-		$this->check_if_valid_page();
+
+		if ( empty( $config['skip_validation'] ) ) {
+			$this->check_if_valid_page();
+		}
 	}
 
 	/**
@@ -141,10 +151,9 @@ class Generate {
 	/**
 	 * Convert a PDF Page to an Image
 	 *
-	 * @return array
+	 * @return ImageData
 	 *
 	 * @throws ImagickException
-	 *
 	 * @since 1.0
 	 */
 	protected function generate() {
@@ -173,11 +182,11 @@ class Generate {
 		$image = $this->embed_cmyk_color_profile( $image );
 		$image = $this->resize_and_crop_image( $image );
 
-		$info = [
-			'mime'     => 'image/' . $image->getImageFormat(),
-			'data'     => $image->getImageBlob(),
-			'filename' => $image->getFilename(),
-		];
+		$info = new ImageData(
+			'image/' . $image->getImageFormat(),
+			$image->getImageBlob(),
+			$image->getFilename()
+		);
 
 		unset( $image );
 
@@ -298,7 +307,7 @@ class Generate {
 	 */
 	public function set_image_name( $file ) {
 		if ( substr( $file, -4 ) === '.pdf' ) {
-			$this->image_filename = sprintf( '%s.jpg', basename( $file, '.pdf' ) );
+			$this->image_filename = $this->common->get_name_from_pdf( $file );
 		} elseif ( substr( $file, -4 ) !== '.jpg' ) {
 			throw new \Exception( 'The image file extension must be .jpg' );
 		} else {
@@ -309,36 +318,50 @@ class Generate {
 	/**
 	 * Output for the PDF image
 	 *
+	 * @param null|ImageData $image
+	 *
+	 * @throws ImagickException
 	 * @since 1.0
 	 */
-	public function to_screen() {
-		$image = $this->generate();
+	public function to_screen( $image = null ) {
 
-		header( 'Content-Type: ' . $image['mime'] );
-		header( 'Content-Disposition: inline; filename="' . $image['filename'] . '"' );
-		echo $image['data'];
+		if ( ! $image instanceof ImageData ) {
+			$image = $this->generate();
+		}
+
+		header( 'Content-Type: ' . $image->get_mime() );
+		header( 'Content-Disposition: inline; filename="' . $image->get_filename() . '"' );
+		echo $image->get_data();
 	}
 
 	/**
 	 * Force download prompt for the PDF image
 	 *
+	 * @param null|ImageData $image
+	 *
+	 * @throws ImagickException
 	 * @since 1.0
 	 */
-	public function to_download() {
-		$image = $this->generate();
+	public function to_download( $image = null ) {
+
+		if ( ! $image instanceof ImageData ) {
+			$image = $this->generate();
+		}
 
 		header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
 		header( 'Content-Description: File Transfer' );
-		header( 'Content-Length: ' . strlen( $image['data'] ) );
+		header( 'Content-Length: ' . strlen( $image->get_data() ) );
 		header( 'Content-Transfer-Encoding: Binary' );
 		header( 'Content-Type: application/octet-stream' );
-		header( 'Content-Disposition: attachment; filename="' . $image['filename'] . '"' );
+		header( 'Content-Disposition: attachment; filename="' . $image->get_filename() . '"' );
 
-		echo $image['data'];
+		echo $image->get_data();
 	}
 
 	/**
 	 * Return a data URI for the PDF image
+	 *
+	 * @param null|ImageData $image
 	 *
 	 * @return string
 	 *
@@ -346,9 +369,12 @@ class Generate {
 	 *
 	 * @since 1.0
 	 */
-	public function to_data_uri() {
-		$image = $this->generate();
-		return 'data:' . $image['mime'] . ';base64,' . base64_encode( $image['data'] );
+	public function to_data_uri( $image = null ) {
+		if ( ! $image instanceof ImageData ) {
+			$image = $this->generate();
+		}
+
+		return 'data:' . $image->get_mime() . ';base64,' . base64_encode( $image->get_data() );
 	}
 
 	/**
@@ -357,11 +383,10 @@ class Generate {
 	 * @return string
 	 *
 	 * @throws ImagickException
-	 *
 	 * @since 1.0
 	 */
 	public function to_string() {
-		return $this->generate()['data'];
+		return $this->generate()->get_data();
 	}
 
 	/**
@@ -383,7 +408,7 @@ class Generate {
 			throw new \Exception( 'Failed to create folder:' . basename( $file ) );
 		}
 
-		if ( ! file_put_contents( $file, $this->generate()['data'] ) ) {
+		if ( ! file_put_contents( $file, $this->generate()->get_data() ) ) {
 			throw new \Exception( 'Failed to write image to file: ' . $file );
 		}
 	}

@@ -84,7 +84,7 @@ class Bootstrap extends Helper_Abstract_Addon {
 			$classes,
 			[
 				new Register(),
-				new Listener( new Common(), new PdfSecurity() ),
+				new Listener( new Common(), new PdfSecurity(), $this->data->pdf_to_images_tmp_location ),
 				new AddPdfToImageFields( GPDFAPI::get_misc_class(), GPDFAPI::get_options_class() ),
 				new AddImageLinkToEntryList( new Common(), new PdfSecurity() ),
 				new AddImageLinkToEntryDetails( new Common(), new PdfSecurity() ),
