@@ -41,6 +41,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Common {
 
+	protected $tmp_path;
+
+	/**
+	 * Common constructor.
+	 *
+	 * @param $tmp_path
+	 */
+	public function __construct( $tmp_path ) {
+		$this->tmp_path = $tmp_path;
+	}
+
+
 	/**
 	 * Return the image configuration from the PDF settings
 	 *
@@ -124,5 +136,19 @@ class Common {
 	 */
 	public function get_name_from_pdf( $file ) {
 		return sprintf( '%s.jpg', basename( $file, '.pdf' ) );
+	}
+
+	/**
+	 * @param string $file
+	 * @param int $form_id
+	 * @param int $entry_id
+	 *
+	 * @return string
+	 */
+	public function get_image_path_from_pdf( $file, $form_id, $entry_id ) {
+		$image_tmp_directory = $this->tmp_path . $form_id . $entry_id . '/';
+		$image_name          = $this->get_name_from_pdf( $file );
+
+		return $image_tmp_directory . $image_name;
 	}
 }

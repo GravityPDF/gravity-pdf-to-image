@@ -75,20 +75,22 @@ class Bootstrap extends Helper_Abstract_Addon {
 		/* Setup a temporary location for the PDF to Images files */
 		$this->data->pdf_to_images_tmp_location = $this->data->template_tmp_location . 'pdf-to-images/';
 
+		$image_common = new Common( $this->data->pdf_to_images_tmp_location );
+
 		$shortcode = new GravityPdfImage( GPDFAPI::get_form_class(), $this->log, $this->options, GPDFAPI::get_misc_class(), new Helper_Url_Signer() );
 		$shortcode->set_debug_mode( $this->options->get_option( 'debug_mode', 'No' ) === 'Yes' );
-		$shortcode->set_image( new Common() );
+		$shortcode->set_image( $image_common );
 
 		/* Register our classes and pass back up to the parent initialiser */
 		$classes = array_merge(
 			$classes,
 			[
 				new Register(),
-				new Listener( new Common(), new PdfSecurity(), $this->data->pdf_to_images_tmp_location ),
+				new Listener( $image_common, new PdfSecurity() ),
 				new AddPdfToImageFields( GPDFAPI::get_misc_class(), GPDFAPI::get_options_class() ),
-				new AddImageLinkToEntryList( new Common(), new PdfSecurity() ),
-				new AddImageLinkToEntryDetails( new Common(), new PdfSecurity() ),
-				new AddImageToNotification( new Common(), new PdfSecurity(), $this->data->pdf_to_images_tmp_location ),
+				new AddImageLinkToEntryList( $image_common, new PdfSecurity() ),
+				new AddImageLinkToEntryDetails( $image_common, new PdfSecurity() ),
+				new AddImageToNotification( $image_common, new PdfSecurity() ),
 				$shortcode,
 			]
 		);

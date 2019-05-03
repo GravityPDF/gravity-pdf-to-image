@@ -56,24 +56,18 @@ class Listener {
 	protected $pdf_security;
 
 	/**
-	 * @var string
-	 */
-	protected $tmp_path;
-
-	/**
 	 * Listener constructor.
 	 *
 	 * @param Common      $image_common
 	 * @param PdfSecurity $security
-	 * @param             $tmp_path
 	 */
-	public function __construct( Common $image_common, PdfSecurity $security, $tmp_path ) {
+	public function __construct( Common $image_common, PdfSecurity $security ) {
 		$this->image_common = $image_common;
 		$this->pdf_security = $security;
-		$this->tmp_path     = $tmp_path;
 	}
 
 	public function init() {
+		add_action( 'gfpdf_pre_pdf_generation_initilise', [ $this, 'maybe_display_cached_pdf_image' ], 10, 5 );
 		add_action( 'gfpdf_pre_pdf_generation_output', [ $this, 'maybe_generate_image_from_pdf' ], 10, 5 );
 	}
 
@@ -86,14 +80,42 @@ class Listener {
 	 *
 	 * @throws \Exception
 	 */
+	public function maybe_display_cached_pdf_image( $mpdf, $form, $entry, $settings, $helper_pdf ) {
+		if ( ! $this->is_pdf_image_url() ) {
+			return;
+		}
+
+		$image_absolute_path = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $entry['id'] );
+		$image_name          = basename( $image_absolute_path );
+
+		if ( ! is_file( $image_absolute_path ) ) {
+			return;
+		}
+
+		list( $subaction ) = $this->get_pdf_image_url_config();
+
+		$image_config = $this->image_common->get_settings( $settings );
+		$image_data   = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
+		$image        = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config + [ 'skip_validation' => true ] );
+
+		if ( $subaction === 'download' ) {
+			$image->to_download( $image_data );
+		} else {
+			$image->to_screen( $image_data );
+		}
+	}
+
+	/**
+	 * @param \Mpdf\Mpdf $mpdf
+	 * @param array      $form
+	 * @param array      $entry
+	 * @param array      $settings
+	 * @param Helper_PDF $helper_pdf
+	 *
+	 * @throws \Exception
+	 */
 	public function maybe_generate_image_from_pdf( $mpdf, $form, $entry, $settings, $helper_pdf ) {
-
-		$action    = isset( $GLOBALS['wp']->query_vars['action'] ) ? $GLOBALS['wp']->query_vars['action'] : '';
-		$subaction = isset( $GLOBALS['wp']->query_vars['sub_action'] ) ? $GLOBALS['wp']->query_vars['sub_action'] : '';
-		$page      = isset( $GLOBALS['wp']->query_vars['page'] ) ? $GLOBALS['wp']->query_vars['page'] : 0;
-
-		/* Do nothing if not requesting an image */
-		if ( $action !== 'img' ) {
+		if ( ! $this->is_pdf_image_url() ) {
 			return;
 		}
 
@@ -102,26 +124,20 @@ class Listener {
 			wp_die( __( 'Password protected PDFs cannot be converted to images.', 'gravity-pdf-to-image' ) );
 		}
 
+		list( $subaction, $page ) = $this->get_pdf_image_url_config();
+
 		$image_config         = $this->image_common->get_settings( $settings );
 		$image_config['page'] = $page;
+		$image_absolute_path  = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $entry['id'] );
+		$image_name           = basename( $image_absolute_path );
 
-		/* Serve image if it already exists (cached for up to 24 hours) */
-		$image_tmp_directory = $this->tmp_path . $entry['form_id'] . $entry['id'] . '/';
-		$image_name          = $this->image_common->get_name_from_pdf( $helper_pdf->get_filename() );
-		$image_absolute_path = $image_tmp_directory . $image_name;
+		$mpdf->encrypted = false;
+		$helper_pdf->save_pdf( $mpdf->Output( '', Destination::STRING_RETURN ) );
 
-		$image_data = null;
-		if ( is_file( $image_absolute_path ) ) {
-			$image_data = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
-			$image      = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config + [ 'skip_validation' => true ] );
-		} else {
-			/* Image doesn't exist. Save PDF to disk, validate and generate */
-			$mpdf->encrypted = false;
-			$helper_pdf->save_pdf( $mpdf->Output( '', Destination::STRING_RETURN ) );
-			$image = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config );
-			$image->to_file( $image_absolute_path );
-			$image_data = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
-		}
+		/* Save the image to disk for caching purposes, then display to the user */
+		$image = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config );
+		$image->to_file( $image_absolute_path );
+		$image_data = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
 
 		if ( $subaction === 'download' ) {
 			$image->to_download( $image_data );
@@ -132,5 +148,24 @@ class Listener {
 		wp_die();
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function is_pdf_image_url() {
+		$action = isset( $GLOBALS['wp']->query_vars['action'] ) ? $GLOBALS['wp']->query_vars['action'] : '';
+		return $action === 'img';
+	}
 
+	/**
+	 * @return array
+	 */
+	public function get_pdf_image_url_config() {
+		$subaction = isset( $GLOBALS['wp']->query_vars['sub_action'] ) ? $GLOBALS['wp']->query_vars['sub_action'] : '';
+		$page      = isset( $GLOBALS['wp']->query_vars['page'] ) ? $GLOBALS['wp']->query_vars['page'] : 0;
+
+		return [
+			$subaction,
+			$page,
+		];
+	}
 }

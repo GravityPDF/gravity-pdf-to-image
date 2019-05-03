@@ -48,13 +48,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class AddImageToNotification {
 
 	/**
-	 * @var string The path to the image tmp location
-	 *
-	 * @since 1.0
-	 */
-	protected $tmp_path;
-
-	/**
 	 * @var array The Gravity PDF Form setting to process
 	 *
 	 * @since 1.0
@@ -76,10 +69,8 @@ class AddImageToNotification {
 	 *
 	 * @param Common      $image_common
 	 * @param PdfSecurity $pdf_security
-	 * @param             $tmp_path
 	 */
-	public function __construct( Common $image_common, PdfSecurity $pdf_security, $tmp_path ) {
-		$this->tmp_path     = $tmp_path;
+	public function __construct( Common $image_common, PdfSecurity $pdf_security ) {
 		$this->pdf_security = $pdf_security;
 		$this->image_common = $image_common;
 	}
@@ -191,8 +182,8 @@ class AddImageToNotification {
 		}
 
 		$pdf_absolute_path   = $pdf->get_absolute_path();
-		$image_tmp_directory = $this->tmp_path . $entry['form_id'] . $entry['id'] . '/';
-		$image_absolute_path = $image_tmp_directory . $image_info->get_image_name();
+		$image_absolute_path = $this->image_common->get_image_path_from_pdf( $pdf_absolute_path, $entry['form_id'], $entry['id'] );
+		$image_tmp_directory = dirname( $image_absolute_path );
 
 		return [
 			$pdf_absolute_path,
