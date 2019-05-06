@@ -52,6 +52,34 @@ class Common {
 		$this->tmp_path = $tmp_path;
 	}
 
+	/**
+	 * Check if the current PDF settings have been configured with image support
+	 *
+	 * @param array $settings A form's PDF setting
+	 *
+	 * @return bool
+	 *
+	 * @since 1.0
+	 */
+	public function has_active_image_settings( $settings ) {
+		return ! empty( $settings['pdf_to_image_toggle'] );
+	}
+
+	/**
+	 * Check if specific Notification setting is selected
+	 *
+	 * @param string $type
+	 * @param array $settings
+	 *
+	 * @return bool
+	 */
+	public function is_attachment( $type, $settings ) {
+		if ( ! isset( $settings['pdf_to_image_notifications'] ) ) {
+			return false;
+		}
+
+		return $settings['pdf_to_image_notifications'] === $type;
+	}
 
 	/**
 	 * Return the image configuration from the PDF settings
@@ -140,8 +168,8 @@ class Common {
 
 	/**
 	 * @param string $file
-	 * @param int $form_id
-	 * @param int $entry_id
+	 * @param int    $form_id
+	 * @param int    $entry_id
 	 *
 	 * @return string
 	 */

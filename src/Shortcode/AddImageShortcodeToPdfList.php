@@ -1,10 +1,8 @@
 <?php
 
-namespace GFPDF\Plugins\PdfToImage\Entry;
+namespace GFPDF\Plugins\PdfToImage\Shortcode;
 
-use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
 use GFPDF\Plugins\PdfToImage\Image\Common;
-use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 
 /**
  * @package     Gravity PDF to Image
@@ -38,19 +36,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/**
- * Class AddImageLinkToEntryDetails
- *
- * @package GFPDF\Plugins\PdfToImage\Entry
- */
-class AddImageLinkToEntryDetails {
+class AddImageShortcodeToPdfList {
+
 	/**
 	 * @var Common
+	 * @since 1.0
 	 */
 	protected $image_common;
 
 	/**
-	 * AddImageLinkToEntryDetails constructor.
+	 * AddImageShortcodeToPdfList constructor.
 	 *
 	 * @param Common $image_common
 	 */
@@ -62,23 +57,27 @@ class AddImageLinkToEntryDetails {
 	 * @since 1.0
 	 */
 	public function init() {
-		add_action( 'gfpdf_entry_detail_post_pdf_links_markup', [ $this, 'add_image_link_to_entry_details' ] );
+		add_action( 'gfpdf_post_pdf_list_shortcode_column', [ $this, 'add_image_shortcode_to_pdf_list' ] );
 	}
 
 	/**
-	 * If the PDF is configured, add it as an option to the Entry Details page
+	 * Display a read-only version of the Gravity PDF Image Shortcode for easy copy/paste
 	 *
-	 * @param array $pdf
+	 * @param array $settings
 	 *
 	 * @since 1.0
 	 */
-	public function add_image_link_to_entry_details( $pdf ) {
+	public function add_image_shortcode_to_pdf_list( $settings ) {
+		if ( $this->image_common->has_active_image_settings( $settings ) ) {
+			$shortcode = sprintf(
+				'[gravitypdfimage name="%s" id="%s"]',
+				esc_attr( str_replace( '"', '', $settings['name'] ) ),
+				esc_attr( $settings['id'] )
+			);
 
-		if ( $this->image_common->has_active_image_settings( $pdf['settings'] ) ) {
 			echo sprintf(
-				'<a href="%s" class="button" target="_blank">%s</a>',
-				$this->image_common->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),
-				__( 'Image', 'gravity-pdf-to-image' )
+				'<input type="text" class="gravitypdf_shortcode" value="%s" readonly="readonly" onfocus="jQuery(this).select();" onclick="jQuery(this).select();" />',
+				esc_attr( $shortcode )
 			);
 		}
 	}

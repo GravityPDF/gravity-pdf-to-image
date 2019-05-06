@@ -93,7 +93,7 @@ class AddImageToNotification {
 	 */
 	public function register_pdf_to_convert_to_image( $form, $entry, $settings, $notification ) {
 		$this->settings = [];
-		if ( ! empty( $settings['pdf_to_image_toggle'] ) && $settings['pdf_to_image_notifications'] !== 'PDF' && ! $this->pdf_security->is_password_protected( $settings ) ) {
+		if ( $this->image_common->has_active_image_settings( $settings ) && ! $this->image_common->is_attachment( 'PDF', $settings ) && ! $this->pdf_security->is_password_protected( $settings ) ) {
 			/* Store via the form ID and notification ID so we can verify we're working on the correct notification during `gform_notification` */
 			$this->settings[ $form['id'] . ':' . $notification['id'] ] = $settings;
 		}
@@ -154,7 +154,7 @@ class AddImageToNotification {
 		$attachments = $this->handle_attachments( $attachments, $image_absolute_path, $pdf_absolute_path );
 
 		/* Clean-up */
-		if ( $settings['security'] === 'Yes' ) {
+		if ( $this->pdf_security->is_security_enabled( $settings ) ) {
 			unlink( $pdf_absolute_path );
 		}
 
@@ -177,7 +177,7 @@ class AddImageToNotification {
 		$image_info = new Generate( $this->image_common, $pdf->get_absolute_path(), $this->image_common->get_settings( $settings ) );
 
 		/* If we had to generate a tmp PDF, reset the image name back to the original */
-		if ( $settings['security'] === 'Yes' ) {
+		if ( $this->pdf_security->is_security_enabled( $settings ) ) {
 			$image_info->set_image_name( $this->get_original_pdf_filename( $pdf->get_filename() ) );
 		}
 
@@ -204,7 +204,7 @@ class AddImageToNotification {
 	 * @since 1.0
 	 */
 	protected function maybe_generate_tmp_pdf( $entry, $settings ) {
-		$does_pdf_have_security_enabled = $settings['security'] === 'Yes';
+		$does_pdf_have_security_enabled = $this->pdf_security->is_security_enabled( $settings );
 
 		if ( $does_pdf_have_security_enabled ) {
 			$settings['security'] = 'No';
@@ -272,7 +272,7 @@ class AddImageToNotification {
 		$attachments[] = $image_absolute_path;
 
 		/* Remove PDF if required */
-		if ( $settings['pdf_to_image_notifications'] === 'Image' ) {
+		if ( $this->image_common->is_attachment( 'Image', $settings ) ) {
 			$pdf_absolute_path = dirname( $pdf_absolute_path ) . '/' . $this->get_original_pdf_filename( basename( $pdf_absolute_path ) );
 			$attachments       = array_diff( $attachments, [ $pdf_absolute_path ] );
 		}

@@ -48,21 +48,15 @@ class AddImageLinkToEntryList {
 	/**
 	 * @var Common
 	 */
-	protected $image;
-
-	/**
-	 * @var PdfSecurity
-	 */
-	protected $pdf_security;
+	protected $image_common;
 
 	/**
 	 * AddImageLinkToEntryList constructor.
 	 *
-	 * @param Common $image
+	 * @param Common $image_common
 	 */
-	public function __construct( Common $image, PdfSecurity $pdf_security ) {
-		$this->image        = $image;
-		$this->pdf_security = $pdf_security;
+	public function __construct( Common $image_common ) {
+		$this->image_common = $image_common;
 	}
 
 	/**
@@ -94,10 +88,10 @@ class AddImageLinkToEntryList {
 
 			$new_list[] = $pdf;
 
-			if ( ! empty( $pdf['settings']['pdf_to_image_toggle'] ) && ! $this->pdf_security->is_password_protected( $pdf['settings'] ) ) {
+			if ( $this->image_common->has_active_image_settings( $pdf['settings'] ) ) {
 				$pdf['name']     = sprintf( __( 'Image: %s', 'gravity-pdf-to-image' ), $pdf['name'] );
-				$pdf['view']     = $this->image->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] );
-				$pdf['download'] = $this->image->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'], true );
+				$pdf['view']     = $this->image_common->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] );
+				$pdf['download'] = $this->image_common->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'], true );
 
 				$new_list[] = $pdf;
 			}

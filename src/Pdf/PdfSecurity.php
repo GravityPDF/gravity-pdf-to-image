@@ -42,6 +42,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 class PdfSecurity {
 
 	/**
+	 * @param array $settings
+	 *
+	 * @return bool
+	 */
+	public function is_security_enabled( $settings ) {
+		return ! isset( $settings['security'] ) || $settings['security'] === 'Yes';
+	}
+
+	/**
 	 * Check if the PDF is configured to be password protected
 	 *
 	 * @param array $settings

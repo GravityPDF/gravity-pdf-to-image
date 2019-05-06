@@ -11,13 +11,14 @@ use GFPDF\Plugins\PdfToImage\Options\AddPdfToImageFields;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use GFPDF\Plugins\PdfToImage\Permalink\Register;
 use GFPDF\Plugins\PdfToImage\Image\Listener;
+use GFPDF\Plugins\PdfToImage\Shortcode\AddImageShortcodeToPdfList;
+use GFPDF\Plugins\PdfToImage\Shortcode\GravityPdfImage;
+
 use GFPDF\Helper\Licensing\EDD_SL_Plugin_Updater;
 use GFPDF\Helper\Helper_Abstract_Addon;
 use GFPDF\Helper\Helper_Singleton;
 use GFPDF\Helper\Helper_Logger;
 use GFPDF\Helper\Helper_Notices;
-
-use GFPDF\Plugins\PdfToImage\Shortcode\GravityPdfImage;
 use GPDFAPI;
 
 /**
@@ -88,9 +89,10 @@ class Bootstrap extends Helper_Abstract_Addon {
 				new Register(),
 				new Listener( $image_common, new PdfSecurity() ),
 				new AddPdfToImageFields( GPDFAPI::get_misc_class(), GPDFAPI::get_options_class() ),
-				new AddImageLinkToEntryList( $image_common, new PdfSecurity() ),
-				new AddImageLinkToEntryDetails( $image_common, new PdfSecurity() ),
+				new AddImageLinkToEntryList( $image_common ),
+				new AddImageLinkToEntryDetails( $image_common ),
 				new AddImageToNotification( $image_common, new PdfSecurity() ),
+				new AddImageShortcodeToPdfList( $image_common ),
 				$shortcode,
 			]
 		);

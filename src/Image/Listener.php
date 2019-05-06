@@ -119,6 +119,11 @@ class Listener {
 			return;
 		}
 
+		/* If no image configured, throw error */
+		if( ! $this->image_common->has_active_image_settings() ) {
+			wp_die( __( 'This PDF has not been configured to convert to an image.', 'gravity-pdf-to-image' ) );
+		}
+
 		/* If PDF password protected, throw error */
 		if ( $this->pdf_security->is_password_protected( $settings ) ) {
 			wp_die( __( 'Password protected PDFs cannot be converted to images.', 'gravity-pdf-to-image' ) );
