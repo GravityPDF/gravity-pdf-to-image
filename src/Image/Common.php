@@ -2,6 +2,9 @@
 
 namespace GFPDF\Plugins\PdfToImage\Image;
 
+use GFPDF\Plugins\PdfToImage\Exception\PdfGenerationAndSave;
+use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
+use GFPDF\Plugins\PdfToImage\Pdf\PdfWrapper;
 use GPDFAPI;
 
 /**
@@ -25,6 +28,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Common {
 
 	/**
+	 * @var PdfSecurity
+	 *
+	 * @since 1.0
+	 */
+	protected $pdf_security;
+
+	/**
 	 * @var string
 	 *
 	 * @since 1.0
@@ -34,12 +44,12 @@ class Common {
 	/**
 	 * Common constructor.
 	 *
-	 * @param $tmp_path
-	 *
-	 * @since 1.0
+	 * @param PdfSecurity $pdf_security
+	 * @param string      $tmp_path
 	 */
-	public function __construct( $tmp_path ) {
-		$this->tmp_path = $tmp_path;
+	public function __construct( PdfSecurity $pdf_security, $tmp_path ) {
+		$this->pdf_security = $pdf_security;
+		$this->tmp_path     = $tmp_path;
 	}
 
 	/**
@@ -172,5 +182,104 @@ class Common {
 		$image_name          = $this->get_name_from_pdf( $file );
 
 		return $image_tmp_directory . $image_name;
+	}
+
+	/**
+	 * Get the path details for the required files
+	 *
+	 * @param array $entry    The Gravity Form Entry
+	 * @param array $settings The Gravity PDF Form setting
+	 *
+	 * @return array
+	 *
+	 * @throws \Mpdf\MpdfException
+	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
+	 * @throws PdfGenerationAndSave
+	 *
+	 * @since 1.0
+	 */
+	public function get_pdf_and_image_path_details( $entry, $settings ) {
+		$pdf        = $this->maybe_generate_tmp_pdf( $entry, $settings );
+		$image_info = new Generate( $this, $pdf->get_absolute_path(), $this->get_settings( $settings ) );
+
+		/* If we had to generate a tmp PDF, reset the image name back to the original */
+		if ( $this->pdf_security->is_security_enabled( $settings ) ) {
+			$image_info->set_image_name( $this->get_original_pdf_filename( $pdf->get_filename() ) );
+		}
+
+		$pdf_absolute_path   = $pdf->get_absolute_path();
+		$image_absolute_path = $this->get_image_path_from_pdf( $pdf_absolute_path, $entry['form_id'], $entry['id'] );
+		$image_tmp_directory = dirname( $image_absolute_path );
+
+		return [
+			$pdf_absolute_path,
+			$image_absolute_path,
+			$image_tmp_directory,
+		];
+	}
+
+	/**
+	 * Check if we need to generate a tmp PDF with security disabled, then generate
+	 *
+	 * @param array $entry
+	 * @param array $settings
+	 *
+	 * @return PdfWrapper Return a valid Pdf object
+	 *
+	 * @throws PdfGenerationAndSave
+	 *
+	 * @since 1.0
+	 */
+	public function maybe_generate_tmp_pdf( $entry, $settings ) {
+		$does_pdf_have_security_enabled = $this->pdf_security->is_security_enabled( $settings );
+
+		if ( $does_pdf_have_security_enabled ) {
+			$settings['security'] = 'No';
+		}
+
+		$pdf = new PdfWrapper( $entry, $settings );
+
+		/* We need to regenerate the PDF, so adjust the filename to not override the original PDF */
+		if ( $does_pdf_have_security_enabled ) {
+			$pdf->set_filename( $this->get_tmp_pdf_filename( $pdf->get_filename() ) );
+		}
+
+		/* If the PDF doesn't exist, generate */
+		if ( ! is_file( $pdf->get_absolute_path() ) && ! $pdf->generate() ) {
+			throw new PdfGenerationAndSave( 'Could not generate PDF for image conversion' );
+		}
+
+		return $pdf;
+	}
+
+	/**
+	 * Return the original filename
+	 *
+	 * @param string $tmp_filename
+	 *
+	 * @return string
+	 *
+	 * @since 1.0
+	 */
+	public function get_original_pdf_filename( $tmp_filename ) {
+		$position = strpos( $tmp_filename, '@@' );
+		if ( $position === false ) {
+			return $tmp_filename;
+		}
+
+		return substr( $tmp_filename, $position + 2 );
+	}
+
+	/**
+	 * Return a tmp PDF filename
+	 *
+	 * @param string $filename
+	 *
+	 * @return string
+	 *
+	 * @since 1.0
+	 */
+	public function get_tmp_pdf_filename( $filename ) {
+		return time() . '@@' . $filename;
 	}
 }

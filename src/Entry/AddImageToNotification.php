@@ -7,7 +7,6 @@ use GFPDF\Plugins\PdfToImage\Exception\PdfGenerationAndSave;
 use GFPDF\Plugins\PdfToImage\Image\Generate;
 use GFPDF\Plugins\PdfToImage\Image\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
-use GFPDF\Plugins\PdfToImage\Pdf\PdfWrapper;
 use Exception;
 
 /**
@@ -90,7 +89,7 @@ class AddImageToNotification {
 			/* Store via the form ID and notification ID so we can verify we're working on the correct notification during `gform_notification` */
 			$this->settings[ $form['id'] . ':' . $notification['id'] ] = $settings;
 
-			$this->logger->addNotice( 'Registering PDF ID#%1$s for Notification "%2$s" Attachment', $settings['id'], $notification['name'] );
+			$this->logger->addNotice( sprintf( 'Registering PDF ID#%1$s for Notification "%2$s" Attachment', $settings['id'], $notification['name'] ) );
 		}
 	}
 
@@ -147,13 +146,13 @@ class AddImageToNotification {
 		list(
 			$pdf_absolute_path,
 			$image_absolute_path
-			) = $this->get_pdf_and_image_path_details( $entry, $settings );
+			) = $this->image_common->get_pdf_and_image_path_details( $entry, $settings );
 
 		/* Image already exists. Skip image generation and attach to notification */
 		if ( is_file( $image_absolute_path ) ) {
 			$attachments = $this->handle_attachments( $attachments, $image_absolute_path, $pdf_absolute_path );
 
-			$this->logger->addNotice( 'Attaching PDF ID#%1$s Cached Image for Notification', $settings['id'] );
+			$this->logger->addNotice( sprintf( 'Attaching PDF ID#%1$s Cached Image for Notification', $settings['id'] ) );
 
 			return $attachments;
 		}
@@ -164,7 +163,7 @@ class AddImageToNotification {
 
 		$attachments = $this->handle_attachments( $attachments, $image_absolute_path, $pdf_absolute_path );
 
-		$this->logger->addNotice( 'Attaching PDF ID#%1$s Generated Image for Notification', $settings['id'] );
+		$this->logger->addNotice( sprintf( 'Attaching PDF ID#%1$s Generated Image for Notification', $settings['id'] ) );
 
 		/* Clean-up */
 		if ( $this->pdf_security->is_security_enabled( $settings ) ) {
@@ -172,105 +171,6 @@ class AddImageToNotification {
 		}
 
 		return $attachments;
-	}
-
-	/**
-	 * Get the path details for the required files
-	 *
-	 * @param array $entry    The Gravity Form Entry
-	 * @param array $settings The Gravity PDF Form setting
-	 *
-	 * @return array
-	 *
-	 * @throws \Mpdf\MpdfException
-	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
-	 * @throws PdfGenerationAndSave
-	 *
-	 * @since 1.0
-	 */
-	protected function get_pdf_and_image_path_details( $entry, $settings ) {
-		$pdf        = $this->maybe_generate_tmp_pdf( $entry, $settings );
-		$image_info = new Generate( $this->image_common, $pdf->get_absolute_path(), $this->image_common->get_settings( $settings ) );
-
-		/* If we had to generate a tmp PDF, reset the image name back to the original */
-		if ( $this->pdf_security->is_security_enabled( $settings ) ) {
-			$image_info->set_image_name( $this->get_original_pdf_filename( $pdf->get_filename() ) );
-		}
-
-		$pdf_absolute_path   = $pdf->get_absolute_path();
-		$image_absolute_path = $this->image_common->get_image_path_from_pdf( $pdf_absolute_path, $entry['form_id'], $entry['id'] );
-		$image_tmp_directory = dirname( $image_absolute_path );
-
-		return [
-			$pdf_absolute_path,
-			$image_absolute_path,
-			$image_tmp_directory,
-		];
-	}
-
-	/**
-	 * Check if we need to generate a tmp PDF with security disabled, then generate
-	 *
-	 * @param array $entry
-	 * @param array $settings
-	 *
-	 * @return PdfWrapper Return a valid Pdf object
-	 *
-	 * @throws PdfGenerationAndSave
-	 *
-	 * @since 1.0
-	 */
-	protected function maybe_generate_tmp_pdf( $entry, $settings ) {
-		$does_pdf_have_security_enabled = $this->pdf_security->is_security_enabled( $settings );
-
-		if ( $does_pdf_have_security_enabled ) {
-			$settings['security'] = 'No';
-		}
-
-		$pdf = new PdfWrapper( $entry, $settings );
-
-		/* We need to regenerate the PDF, so adjust the filename to not override the original PDF */
-		if ( $does_pdf_have_security_enabled ) {
-			$pdf->set_filename( $this->get_tmp_pdf_filename( $pdf->get_filename() ) );
-		}
-
-		/* If the PDF doesn't exist, generate */
-		if ( ! is_file( $pdf->get_absolute_path() ) && ! $pdf->generate() ) {
-			throw new PdfGenerationAndSave( 'Could not generate PDF for image conversion' );
-		}
-
-		return $pdf;
-	}
-
-	/**
-	 * Return the original filename
-	 *
-	 * @param string $tmp_filename
-	 *
-	 * @return string
-	 *
-	 * @since 1.0
-	 */
-	public function get_original_pdf_filename( $tmp_filename ) {
-		$position = strpos( $tmp_filename, '@@' );
-		if ( $position === false ) {
-			return $tmp_filename;
-		}
-
-		return substr( $tmp_filename, $position + 2 );
-	}
-
-	/**
-	 * Return a tmp PDF filename
-	 *
-	 * @param string $filename
-	 *
-	 * @return string
-	 *
-	 * @since 1.0
-	 */
-	public function get_tmp_pdf_filename( $filename ) {
-		return time() . '@@' . $filename;
 	}
 
 	/**
@@ -290,7 +190,7 @@ class AddImageToNotification {
 
 		/* Remove PDF if required */
 		if ( $this->image_common->is_attachment( 'Image', $settings ) ) {
-			$pdf_absolute_path = dirname( $pdf_absolute_path ) . '/' . $this->get_original_pdf_filename( basename( $pdf_absolute_path ) );
+			$pdf_absolute_path = dirname( $pdf_absolute_path ) . '/' . $this->image_common->get_original_pdf_filename( basename( $pdf_absolute_path ) );
 			$attachments       = array_diff( $attachments, [ $pdf_absolute_path ] );
 		}
 

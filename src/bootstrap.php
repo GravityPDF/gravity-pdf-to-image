@@ -6,6 +6,7 @@ use GFPDF\Helper\Helper_Url_Signer;
 use GFPDF\Plugins\PdfToImage\Entry\AddImageLinkToEntryDetails;
 use GFPDF\Plugins\PdfToImage\Entry\AddImageLinkToEntryList;
 use GFPDF\Plugins\PdfToImage\Entry\AddImageToNotification;
+use GFPDF\Plugins\PdfToImage\Entry\AlwaysSaveImage;
 use GFPDF\Plugins\PdfToImage\Image\Common;
 use GFPDF\Plugins\PdfToImage\Options\AddPdfToImageFields;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
@@ -57,7 +58,8 @@ class Bootstrap extends Helper_Abstract_Addon {
 		/* Setup a temporary location for the PDF to Images files */
 		$this->data->pdf_to_images_tmp_location = $this->data->template_tmp_location . 'pdf-to-images/';
 
-		$image_common = new Common( $this->data->pdf_to_images_tmp_location );
+		$pdf_security = new PdfSecurity();
+		$image_common = new Common( $pdf_security, $this->data->pdf_to_images_tmp_location );
 
 		$shortcode = new GravityPdfImage( GPDFAPI::get_form_class(), $this->log, $this->options, GPDFAPI::get_misc_class(), new Helper_Url_Signer() );
 		$shortcode->set_debug_mode( $this->options->get_option( 'debug_mode', 'No' ) === 'Yes' );
@@ -68,13 +70,14 @@ class Bootstrap extends Helper_Abstract_Addon {
 			$classes,
 			[
 				new Register(),
-				new Listener( $image_common, new PdfSecurity() ),
+				new Listener( $image_common, $pdf_security ),
 				new AddPdfToImageFields( GPDFAPI::get_misc_class(), GPDFAPI::get_options_class() ),
 				new AddImageLinkToEntryList( $image_common ),
 				new AddImageLinkToEntryDetails( $image_common ),
-				new AddImageToNotification( $image_common, new PdfSecurity() ),
+				new AddImageToNotification( $image_common, $pdf_security ),
 				new AddImageShortcodeToPdfList( $image_common ),
 				$shortcode,
+				new AlwaysSaveImage( $image_common, $pdf_security ),
 			]
 		);
 
