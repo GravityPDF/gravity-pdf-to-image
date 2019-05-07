@@ -48,7 +48,7 @@ class Gpdf_To_Image_Checks {
 	 *
 	 * @since 1.0
 	 */
-	private $required_gravitypdf_version = '5.1.5';
+	private $required_gravitypdf_version = '5.2.0-beta1';
 
 	/**
 	 * Run our pre-checks and if it passes bootstrap the plugin
