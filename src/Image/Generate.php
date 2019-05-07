@@ -106,7 +106,8 @@ class Generate {
 				'width'   => 800,
 				'height'  => 600,
 				'crop'    => false,
-			], $config
+			],
+			$config
 		);
 
 		$this->file    = $file;
