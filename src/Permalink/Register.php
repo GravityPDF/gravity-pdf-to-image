@@ -58,9 +58,9 @@ class Register {
 		$rewrite_page_to = 'index.php?gpdf=1&pid=$matches[1]&lid=$matches[2]&action=$matches[3]&page=$matches[4]&sub_action=$matches[5]';
 
 		$permalinks = [
-			'^' . $image_all_permalink                             => $rewrite_all_to,
-			'^' . $wp_rewrite->index . '/' . $image_all_permalink  => $rewrite_all_to,
-			'^' . $image_page_permalink                            => $rewrite_page_to,
+			'^' . $image_all_permalink  => $rewrite_all_to,
+			'^' . $wp_rewrite->index . '/' . $image_all_permalink => $rewrite_all_to,
+			'^' . $image_page_permalink => $rewrite_page_to,
 			'^' . $wp_rewrite->index . '/' . $image_page_permalink => $rewrite_page_to,
 		];
 

@@ -98,14 +98,16 @@ class Generate {
 		$this->common = $common;
 
 		/* Override defaults with user-defined configuration */
-		$config = array_merge( [
-			'page'    => 1,
-			'dpi'     => 150,
-			'quality' => 95,
-			'width'   => 800,
-			'height'  => 600,
-			'crop'    => false,
-		], $config );
+		$config = array_merge(
+			[
+				'page'    => 1,
+				'dpi'     => 150,
+				'quality' => 95,
+				'width'   => 800,
+				'height'  => 600,
+				'crop'    => false,
+			], $config
+		);
 
 		$this->file    = $file;
 		$this->page    = (int) $config['page'];

@@ -85,7 +85,7 @@ class Gpdf_To_Image_Checks {
 
 		/* Check if the Gravity PDF Minimum version requirements are met */
 		if ( defined( 'PDF_EXTENDED_VERSION' ) &&
-		     version_compare( PDF_EXTENDED_VERSION, $this->required_gravitypdf_version, '>=' )
+			 version_compare( PDF_EXTENDED_VERSION, $this->required_gravitypdf_version, '>=' )
 		) {
 			return;
 		}
@@ -102,13 +102,13 @@ class Gpdf_To_Image_Checks {
 	public function check_imagick() {
 
 		if ( ! extension_loaded( 'imagick' ) || ! class_exists( 'Imagick', false ) ) {
-			$this->notices[] = sprintf( esc_html__( 'The PHP Extension Imagick could not be detected. Contact your web hosting provider to fix. %1$sGet more info%2$s.', 'gravity-forms-pdf-extended' ), '<a href="#php-imagick">', '</a>' );
+			$this->notices[] = sprintf( esc_html__( 'The PHP Extension Imagick could not be detected. Contact your web hosting provider to fix. %1$sGet more info%2$s.', 'gravity-pdf-to-image' ), '<a href="#php-imagick">', '</a>' );
 
 			return;
 		}
 
 		if ( version_compare( phpversion( 'imagick' ), '2.2.0', '<' ) ) {
-			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %3$sGet more info%4$s.', 'gravity-forms-pdf-extended' ), '<a href="#php-imagick-version">', '</a>' );
+			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %3$sGet more info%4$s.', 'gravity-pdf-to-image' ), '<a href="#php-imagick-version">', '</a>' );
 		}
 
 		$required_methods = [
@@ -135,13 +135,13 @@ class Gpdf_To_Image_Checks {
 		];
 
 		if ( ! defined( 'Imagick::COMPRESSION_JPEG' ) || ! defined( 'Imagick::FILTER_LANCZOS' ) || ! defined( 'Imagick::COLORSPACE_CMYK' ) ) {
-			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %3$sGet more info%4$s.', 'gravity-forms-pdf-extended' ), '<a href="#php-imagick-version">', '</a>' );
+			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %3$sGet more info%4$s.', 'gravity-pdf-to-image' ), '<a href="#php-imagick-version">', '</a>' );
 		}
 
 		$required_methods = array_map( 'strtolower', $required_methods );
 		$class_methods    = array_map( 'strtolower', get_class_methods( 'Imagick' ) );
 		if ( array_diff( $required_methods, $class_methods ) ) {
-			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %3$sGet more info%4$s.', 'gravity-forms-pdf-extended' ), '<a href="#php-imagick-version">', '</a>' );
+			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %3$sGet more info%4$s.', 'gravity-pdf-to-image' ), '<a href="#php-imagick-version">', '</a>' );
 		}
 
 		$required_formats = [
@@ -152,9 +152,10 @@ class Gpdf_To_Image_Checks {
 		];
 
 		$supported_formats = array_map( 'strtolower', Imagick::queryformats() );
+		$missing_formats   = array_diff( $required_formats, $supported_formats );
 
-		if ( $missing_formats = array_diff( $required_formats, $supported_formats ) ) {
-			$this->notices[] = sprintf( esc_html__( 'The PHP Extension Imagick does not support the file format(s): %1$s. %2$sGet more info%3$s.', 'gravity-forms-pdf-extended' ), implode( ', ', $missing_formats ), '<a href="#php-imagick-file-formats">', '</a>' );
+		if ( $missing_formats ) {
+			$this->notices[] = sprintf( esc_html__( 'The PHP Extension Imagick does not support the file format(s): %1$s. %2$sGet more info%3$s.', 'gravity-pdf-to-image' ), implode( ', ', $missing_formats ), '<a href="#php-imagick-file-formats">', '</a>' );
 		}
 	}
 

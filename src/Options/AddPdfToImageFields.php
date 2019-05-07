@@ -87,7 +87,7 @@ class AddPdfToImageFields {
 		if ( $display ) {
 
 			$pdf_to_image_settings = [
-				'pdf_to_image_toggle' => [
+				'pdf_to_image_toggle'          => [
 					'id'      => 'pdf_to_image_toggle',
 					'name'    => esc_html__( 'Generate Image', 'gravity-pdf-to-image' ),
 					'desc'    => esc_html__( 'Convert the PDF to an image', 'gravity-pdf-to-image' ),
@@ -95,7 +95,7 @@ class AddPdfToImageFields {
 					'tooltip' => '<h6>' . esc_html__( 'Generate Image', 'gravity-pdf-to-image' ) . '</h6>' . esc_html__( 'When enabled, the generated PDF is automatically converted to an image.', 'gravity-pdf-to-image' ),
 				],
 
-				'pdf_to_image_page' => [
+				'pdf_to_image_page'            => [
 					'id'      => 'pdf_to_image_page',
 					'type'    => 'number',
 					'name'    => esc_html__( 'Page', 'gravity-pdf-to-image' ),
@@ -116,7 +116,7 @@ class AddPdfToImageFields {
 					'tooltip' => esc_html__( 'Resize the image proportionally (using a best-fit method) or crop the image to the exact size specified.', 'gravity-pdf-to-image' ),
 				],
 
-				'pdf_to_image_dpi' => [
+				'pdf_to_image_dpi'             => [
 					'id'      => 'pdf_to_image_dpi',
 					'type'    => 'number',
 					'name'    => esc_html__( 'DPI', 'gravity-pdf-to-image' ),
@@ -126,7 +126,7 @@ class AddPdfToImageFields {
 					'tooltip' => '<h6>' . esc_html__( 'DPI', 'gravity-pdf-to-image' ) . '</h6>' . esc_html__( 'A larger DPI will generate higher resolution images, but increase the file size and generation time. A smaller DPI produces a lower resolution image, but has a smaller filesize and is faster to generate.', 'gravity-pdf-to-image' ),
 				],
 
-				'pdf_to_image_quality' => [
+				'pdf_to_image_quality'         => [
 					'id'      => 'pdf_to_image_quality',
 					'type'    => 'number',
 					'name'    => esc_html__( 'Image Quality', 'gravity-pdf-to-image' ),
@@ -137,7 +137,7 @@ class AddPdfToImageFields {
 					'tooltip' => '<h6>' . esc_html__( 'Image Quality', 'gravity-pdf-to-image' ) . '</h6>' . esc_html__( 'Select 100 for the highest quality image, and 0 for the lowest quality image.', 'gravity-pdf-to-image' ),
 				],
 
-				'pdf_to_image_notifications' => [
+				'pdf_to_image_notifications'   => [
 					'id'      => 'pdf_to_image_notifications',
 					'type'    => 'radio',
 					'name'    => esc_html__( 'Image Notifications', 'gravity-pdf-to-image' ),
@@ -185,21 +185,21 @@ class AddPdfToImageFields {
 
 		<label for="gfpdf_settings[<?= $args['id'] ?>]_width">
 			<input type="number"
-			       id="gfpdf_settings[<?= $args['id'] ?>]_width"
-			       class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
-			       name="gfpdf_settings[<?= $args['id'] ?>][]"
-			       value="<?= esc_attr( $width ) ?>"
-			       min="0"
+				   id="gfpdf_settings[<?= $args['id'] ?>]_width"
+				   class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
+				   name="gfpdf_settings[<?= $args['id'] ?>][]"
+				   value="<?= esc_attr( $width ) ?>"
+				   min="0"
 			/> <?= esc_html__( 'Width', 'gravity-pdf-to-image' ) ?>
 		</label>
 
 		<label for="gfpdf_settings[<?= $args['id'] ?>]_height">
 			<input type="number"
-			       id="gfpdf_settings[<?= $args['id'] ?>]_height"
-			       class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
-			       name="gfpdf_settings[<?= $args['id'] ?>][]"
-			       value="<?= esc_attr( $height ) ?>"
-			       min="0"
+				   id="gfpdf_settings[<?= $args['id'] ?>]_height"
+				   class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
+				   name="gfpdf_settings[<?= $args['id'] ?>][]"
+				   value="<?= esc_attr( $height ) ?>"
+				   min="0"
 			/> <?= esc_html__( 'Height (px)', 'gravity-pdf-to-image' ) ?>
 		</label>
 
@@ -207,9 +207,9 @@ class AddPdfToImageFields {
 
 		<label>
 			<input type="checkbox"
-			       id="gfpdf_settings[<?= $args['id'] ?>]_crop"
-			       name="gfpdf_settings[<?= $args['id'] ?>][]"
-				<?php checked( 1, $crop ) ?>
+				   id="gfpdf_settings[<?= $args['id'] ?>]_crop"
+				   name="gfpdf_settings[<?= $args['id'] ?>][]"
+				<?php checked( 1, $crop ); ?>
 			/> <?= esc_html__( 'Crop to Dimensions', 'gravity-pdf-to-image' ) ?>
 		</label>
 
@@ -219,7 +219,8 @@ class AddPdfToImageFields {
 
 		<?php if ( isset( $args['tooltip'] ) ): ?>
 			<span class="gf_hidden_tooltip" style="display: none;"><?= wp_kses_post( $args['tooltip'] ) ?></span>
-		<?php endif;
+			<?php
+		endif;
 
 		echo ob_get_clean();
 	}

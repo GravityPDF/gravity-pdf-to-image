@@ -70,7 +70,7 @@ class AddImageToNotification {
 	 */
 	public function init() {
 		add_action( 'gfpdf_post_generate_and_save_pdf_notification', [ $this, 'register_pdf_to_convert_to_image' ], 10, 4 );
-		add_filter( 'gform_notification', [ $this, 'maybe_attach_files_to_notifications', ], 10000, 3 );
+		add_filter( 'gform_notification', [ $this, 'maybe_attach_files_to_notifications' ], 10000, 3 );
 	}
 
 	/**
