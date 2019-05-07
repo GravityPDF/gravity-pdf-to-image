@@ -81,8 +81,34 @@ class Bootstrap extends Helper_Abstract_Addon {
 			]
 		);
 
+		$this->add_filters();
+
 		/* Run the setup */
 		parent::init( $classes );
+	}
+
+	/**
+	 * @since 1.0
+	 */
+	public function add_filters() {
+		add_filter( 'gfpdf_settings_licenses', [ $this, 'fix_plugin_short_name' ], 20 );
+	}
+	/**
+	 * Fix the plugin short name
+	 *
+	 * @param array $fields
+	 *
+	 * @return array
+	 *
+	 * @since 1.0
+	 */
+	public function fix_plugin_short_name( $fields ) {
+		foreach ( $fields as &$field ) {
+			if ( $field['id'] === 'license_' . $this->get_slug() ) {
+				$field['name'] = $this->get_name();
+			}
+		}
+		return $fields;
 	}
 
 	/**
