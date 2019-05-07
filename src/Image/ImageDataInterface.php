@@ -43,16 +43,22 @@ interface ImageDataInterface {
 
 	/**
 	 * @return string The image mime type
+	 *
+	 * @since 1.0
 	 */
 	public function get_mime();
 
 	/**
 	 * @return string The image binary data
+	 *
+	 * @since 1.0
 	 */
-	public function get_data() ;
+	public function get_data();
 
 	/**
 	 * @return string The image filename
+	 *
+	 * @since 1.0
 	 */
 	public function get_filename();
 }

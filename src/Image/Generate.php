@@ -2,10 +2,10 @@
 
 namespace GFPDF\Plugins\PdfToImage\Image;
 
+use GFPDF\Plugins\PdfToImage\Exception\PdfToImageInvalidArgument;
 use Mpdf\Mpdf;
 use Imagick;
 use ImagickException;
-use InvalidArgumentException;
 
 /**
  * @package     Gravity PDF to Image
@@ -48,49 +48,70 @@ class Generate {
 
 	/**
 	 * @var Common
+	 * @since 1.0
 	 */
 	protected $common;
 
 	/**
 	 * @var string Path to PDF
+	 * @since 1.0
 	 */
 	protected $file;
 
 	/**
 	 * @var string The generated image filename
+	 * @since 1.0
 	 */
 	protected $image_filename;
 
 	/**
 	 * @var int The PDF page to load
+	 * @since 1.0
 	 */
 	protected $page;
 
 	/**
 	 * @var int the PDF DPI
+	 * @since 1.0
 	 */
 	protected $dpi;
 
 	/**
 	 * @var int The image quality
+	 * @since 1.0
 	 */
 	protected $quality;
 
 	/**
 	 * @var int The image width constraint
+	 * @since 1.0
 	 */
 	protected $width;
 
 	/**
 	 * @var int The image height constraint
+	 * @since 1.0
 	 */
 	protected $height;
 
 	/**
 	 * @var bool Whether to crop the image to the width/height, or resize with a best fit
+	 * @since 1.0
 	 */
 	protected $crop;
 
+	/**
+	 * Generate constructor.
+	 *
+	 * @param Common $common
+	 * @param string $file   The absolute path to the PDF an image should be generated from
+	 * @param array  $config The custom configuration that should be applied when converting the PDF to an image
+	 *
+	 * @throws \Mpdf\MpdfException
+	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
+	 *
+	 * @since 1.0
+	 */
 	public function __construct( Common $common, $file, $config = [] ) {
 
 		$this->common = $common;
@@ -125,13 +146,12 @@ class Generate {
 	 *
 	 * @throws \Mpdf\MpdfException
 	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
-	 * @throws InvalidArgumentException
 	 *
 	 * @since 1.0
 	 */
 	protected function check_if_valid_page() {
 		if ( ! is_int( $this->page ) ) {
-			throw new InvalidArgumentException( '$page must be an integer' );
+			throw new PdfToImageInvalidArgument( '$page must be an integer' );
 		}
 
 		/* Read the PDF and get the page count */
@@ -139,7 +159,7 @@ class Generate {
 		$page_count = $mpdf->setSourceFile( $this->file );
 
 		if ( abs( $this->page ) > $page_count ) {
-			throw new InvalidArgumentException( 'The page to convert to an image does not exist in the PDF' );
+			throw new PdfToImageInvalidArgument( 'The page to convert to an image does not exist in the PDF' );
 		}
 
 		/* If negative, count from the end of the document */
@@ -169,7 +189,7 @@ class Generate {
 		}
 
 		if ( ! $image->valid() ) {
-			throw new InvalidArgumentException( 'Invalid PDF' );
+			throw new PdfToImageInvalidArgument( 'Invalid PDF' );
 		}
 
 		$image->setFilename( sprintf( '%s.jpg', basename( $this->file, '.pdf' ) ) );
@@ -194,6 +214,8 @@ class Generate {
 	}
 
 	/**
+	 * Check if all PDF pages should be shown in the generated image
+	 *
 	 * @return bool
 	 *
 	 * @since 1.0
@@ -219,6 +241,8 @@ class Generate {
 	}
 
 	/**
+	 * Resize and Crop the Image, if needed
+	 *
 	 * @param Imagick $image
 	 *
 	 * @return Imagick
@@ -301,7 +325,7 @@ class Generate {
 	 *
 	 * @param string $file The name of the image or PDF
 	 *
-	 * @throws \Exception
+	 * @throws PdfToImageInvalidArgument
 	 *
 	 * @since 1.0
 	 */
@@ -309,7 +333,7 @@ class Generate {
 		if ( substr( $file, -4 ) === '.pdf' ) {
 			$this->image_filename = $this->common->get_name_from_pdf( $file );
 		} elseif ( substr( $file, -4 ) !== '.jpg' ) {
-			throw new \Exception( 'The image file extension must be .jpg' );
+			throw new PdfToImageInvalidArgument( 'The image file extension must be .jpg' );
 		} else {
 			$this->image_filename = $file;
 		}
@@ -321,6 +345,7 @@ class Generate {
 	 * @param null|ImageData $image
 	 *
 	 * @throws ImagickException
+	 *
 	 * @since 1.0
 	 */
 	public function to_screen( $image = null ) {
@@ -340,6 +365,7 @@ class Generate {
 	 * @param null|ImageData $image
 	 *
 	 * @throws ImagickException
+	 *
 	 * @since 1.0
 	 */
 	public function to_download( $image = null ) {
@@ -383,6 +409,7 @@ class Generate {
 	 * @return string
 	 *
 	 * @throws ImagickException
+	 *
 	 * @since 1.0
 	 */
 	public function to_string() {
@@ -399,17 +426,16 @@ class Generate {
 	 * @since 1.0
 	 */
 	public function to_file( $file ) {
-
 		if ( substr( $file, -4 ) !== '.jpg' ) {
-			throw new \Exception( 'The image file extension must be .jpg' );
+			throw new PdfToImageInvalidArgument( 'The image file extension must be .jpg' );
 		}
 
 		if ( wp_mkdir_p( dirname( $file ) ) === false ) {
-			throw new \Exception( 'Failed to create folder:' . basename( $file ) );
+			throw new PdfToImageInvalidArgument( 'Failed to create folder:' . basename( $file ) );
 		}
 
 		if ( ! file_put_contents( $file, $this->generate()->get_data() ) ) {
-			throw new \Exception( 'Failed to write image to file: ' . $file );
+			throw new PdfToImageInvalidArgument( 'Failed to write image to file: ' . $file );
 		}
 	}
 }

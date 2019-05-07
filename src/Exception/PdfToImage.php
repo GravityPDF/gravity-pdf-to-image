@@ -1,6 +1,8 @@
 <?php
 
-namespace GFPDF\Plugins\PdfToImage\Pdf;
+namespace GFPDF\Plugins\PdfToImage\Exception;
+
+use Exception;
 
 /**
  * @package     Gravity PDF to Image
@@ -35,33 +37,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 */
 
 /**
- * Class PdfSecurity
+ * Class PdfToImage
  *
- * @package GFPDF\Plugins\PdfToImage\Pdf
+ * @package GFPDF\Plugins\PdfToImage\Exception
+ *
+ * @since   1.0
  */
-class PdfSecurity {
+class PdfToImage extends Exception {
 
-	/**
-	 * @param array $settings
-	 *
-	 * @return bool
-	 *
-	 * @since 1.0
-	 */
-	public function is_security_enabled( $settings ) {
-		return ! isset( $settings['security'] ) || $settings['security'] === 'Yes';
-	}
-
-	/**
-	 * Check if the PDF is configured to be password protected
-	 *
-	 * @param array $settings
-	 *
-	 * @return bool
-	 *
-	 * @since 1.0
-	 */
-	public function is_password_protected( $settings ) {
-		return $settings['security'] === 'Yes' && ! empty( $settings['password'] );
-	}
 }

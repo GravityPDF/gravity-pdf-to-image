@@ -2,6 +2,8 @@
 
 namespace GFPDF\Plugins\PdfToImage\Image;
 
+use GFPDF\Plugins\PdfToImage\Exception\PdfToImageInvalidArgument;
+
 /**
  * @package     Gravity PDF to Image
  * @copyright   Copyright (c) 2019, Blue Liquid Designs
@@ -43,16 +45,19 @@ class ImageData implements ImageDataInterface {
 
 	/**
 	 * @var string
+	 * @since 1.0
 	 */
 	protected $mime;
 
 	/**
 	 * @var string
+	 * @since 1.0
 	 */
 	protected $data;
 
 	/**
 	 * @var string
+	 * @since 1.0
 	 */
 	protected $filename;
 
@@ -65,15 +70,15 @@ class ImageData implements ImageDataInterface {
 	 */
 	public function __construct( $mime, $data, $filename ) {
 		if ( ! is_string( $mime ) ) {
-			throw new \InvalidArgumentException( '$mime must be a string' );
+			throw new PdfToImageInvalidArgument( '$mime must be a string' );
 		}
 
 		if ( ! is_string( $data ) ) {
-			throw new \InvalidArgumentException( '$mime must be a string' );
+			throw new PdfToImageInvalidArgument( '$mime must be a string' );
 		}
 
 		if ( ! is_string( $filename ) ) {
-			throw new \InvalidArgumentException( '$mime must be a string' );
+			throw new PdfToImageInvalidArgument( '$mime must be a string' );
 		}
 
 		$this->mime     = $mime;
@@ -83,6 +88,8 @@ class ImageData implements ImageDataInterface {
 
 	/**
 	 * @return string
+	 *
+	 * @since 1.0
 	 */
 	public function get_mime() {
 		return $this->mime;
@@ -90,6 +97,8 @@ class ImageData implements ImageDataInterface {
 
 	/**
 	 * @return string
+	 *
+	 * @since 1.0
 	 */
 	public function get_data() {
 		return $this->data;
@@ -97,6 +106,8 @@ class ImageData implements ImageDataInterface {
 
 	/**
 	 * @return string
+	 *
+	 * @since 1.0
 	 */
 	public function get_filename() {
 		return $this->filename;

@@ -2,9 +2,7 @@
 
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
-use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
 use GFPDF\Plugins\PdfToImage\Image\Common;
-use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 
 /**
  * @package     Gravity PDF to Image
@@ -76,7 +74,7 @@ class AddImageLinkToEntryDetails {
 
 		if ( $this->image_common->has_active_image_settings( $pdf['settings'] ) ) {
 			echo sprintf(
-				'<a href="%s" class="button" target="_blank">%s</a>',
+				'<a href="%1%s" class="button" target="_blank">%2$s</a>',
 				$this->image_common->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),
 				__( 'Image', 'gravity-pdf-to-image' )
 			);

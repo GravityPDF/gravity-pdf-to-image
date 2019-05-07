@@ -6,11 +6,11 @@ use GFPDF\Exceptions\GravityPdfShortcodeEntryIdException;
 use GFPDF\Exceptions\GravityPdfShortcodePdfConditionalLogicFailedException;
 use GFPDF\Exceptions\GravityPdfShortcodePdfConfigNotFoundException;
 use GFPDF\Exceptions\GravityPdfShortcodePdfInactiveException;
+use GFPDF\Plugins\PdfToImage\Exception\PdfToImageInvalidArgument;
 use GFPDF\Helper\Helper_Abstract_Pdf_Shortcode;
-use GFPDF\Plugins\PdfToImage\Image\ImageConfig;
-use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
 use GFPDF\Plugins\PdfToImage\Image\Common;
 use GPDFAPI;
+use Exception;
 
 /**
  * @package     Gravity PDF to Image
@@ -52,12 +52,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 
 	/**
-	 * @since 1.0
+	 * @since 1.0 The shortcode ID / name
 	 */
 	const SHORTCODE = 'gravitypdfimage';
 
 	/**
-	 * @var bool
+	 * @var bool Whether debug mode is enabled
 	 */
 	protected $debug;
 
@@ -81,7 +81,9 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 
 
 	/**
-	 * @param $debug
+	 * @param bool $debug
+	 *
+	 * @since 1.0
 	 */
 	public function set_debug_mode( $debug ) {
 		$this->debug = (bool) $debug;
@@ -89,12 +91,16 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 
 	/**
 	 * @param Common $image
+	 *
+	 * @since 1.0
 	 */
 	public function set_image( Common $image ) {
 		$this->image = $image;
 	}
 
 	/**
+	 * Handle the rendering process for this shortcode
+	 *
 	 * @param array $attributes
 	 *
 	 * @return string
@@ -140,7 +146,6 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 
 			$attributes['url'] = $this->image->get_url( $settings['id'], $entry_id, $image_settings['page'], $download, false );
 
-
 			if ( $signed ) {
 				$attributes['url'] = $this->url_signer->sign( $attributes['url'], $attributes['expires'] );
 			}
@@ -175,19 +180,23 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 			return $has_view_permissions ? $controller->view->pdf_not_active() : '';
 		} catch ( GravityPdfShortcodePdfConditionalLogicFailedException $e ) {
 			return $has_view_permissions ? $controller->view->conditional_logic_not_met() : '';
-		} catch ( \Exception $e ) {
+		} catch ( Exception $e ) {
 			return $has_view_permissions ? $e->getMessage() : '';
 		}
 	}
 
 	/**
-	 * @param int    $entry_id
-	 * @param string $pdf_id
+	 * Get the PDF configuration
+	 *
+	 * @param int    $entry_id The Gravity Forms Entry ID
+	 * @param string $pdf_id   The Gravity PDF Form Setting ID
 	 *
 	 * @return array
+	 *
 	 * @throws GravityPdfShortcodePdfConditionalLogicFailedException
 	 * @throws GravityPdfShortcodePdfConfigNotFoundException
 	 * @throws GravityPdfShortcodePdfInactiveException
+	 * @throws PdfToImageInvalidArgument
 	 *
 	 * @since 1.0
 	 */
@@ -195,7 +204,7 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 		$settings = parent::get_pdf_config( $entry_id, $pdf_id );
 
 		if ( empty( $settings['pdf_to_image_toggle'] ) ) {
-			throw new \Exception( 'image_not_enabled_for_pdf' );
+			throw new PdfToImageInvalidArgument( 'image_not_enabled_for_pdf' );
 		}
 
 		return $settings;

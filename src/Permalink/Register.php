@@ -2,6 +2,8 @@
 
 namespace GFPDF\Plugins\PdfToImage\Permalink;
 
+use GPDFAPI;
+
 /**
  * @package     Gravity PDF to Image
  * @copyright   Copyright (c) 2019, Blue Liquid Designs
@@ -46,7 +48,6 @@ class Register {
 	 */
 	public function init() {
 		add_action( 'init', [ $this, 'register_permalink' ], 5 ); /* run before Gravity PDF registers its endpoints */
-
 		add_filter( 'query_vars', [ $this, 'maybe_register_rewrite_tags' ], 20 );
 	}
 
@@ -61,7 +62,7 @@ class Register {
 		global $wp_rewrite;
 
 		/** @var \GFPDF\Model\Model_Install $install */
-		$install = \GPDFAPI::get_mvc_class( 'Model_Install' );
+		$install = GPDFAPI::get_mvc_class( 'Model_Install' );
 
 		/* Get image permalink */
 		$base_permalink = str_replace( '?(download)?/?', '', $install->get_permalink_regex() );
@@ -92,6 +93,8 @@ class Register {
 	}
 
 	/**
+	 * Register a permalink rewrite tag on Gravity PDF URLs
+	 *
 	 * @param array $tags
 	 *
 	 * @return array
@@ -99,7 +102,6 @@ class Register {
 	 * @since 1.0
 	 */
 	public function maybe_register_rewrite_tags( $tags ) {
-
 		if ( in_array( 'gpdf', $tags ) ) {
 			$tags[] = 'sub_action';
 		}

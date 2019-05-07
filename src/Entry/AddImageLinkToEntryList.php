@@ -2,9 +2,8 @@
 
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
-use GFPDF\Plugins\PdfToImage\Image\ImageUrl;
 use GFPDF\Plugins\PdfToImage\Image\Common;
-use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
+use GFForms;
 
 /**
  * @package     Gravity PDF to Image
@@ -66,7 +65,7 @@ class AddImageLinkToEntryList {
 	 */
 	public function init() {
 
-		if ( \GFForms::get_page() !== 'entry_list' ) {
+		if ( GFForms::get_page() !== 'entry_list' ) {
 			return;
 		}
 

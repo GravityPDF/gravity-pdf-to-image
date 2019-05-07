@@ -65,10 +65,10 @@ class AddPdfToImageFields {
 	private $options;
 
 	/**
-	 * AddTextWatermarkFields constructor.
+	 * AddPdfToImageFields constructor.
 	 *
-	 * @param Helper_Misc $misc
-	 * @param Helper_Abstract_Options
+	 * @param Helper_Misc             $misc
+	 * @param Helper_Abstract_Options $options
 	 *
 	 * @since 1.0
 	 */
@@ -202,21 +202,25 @@ class AddPdfToImageFields {
 		ob_start();
 		?>
 
-		<input type="number"
-		       id="gfpdf_settings[<?= $args['id'] ?>]_width"
-		       class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
-		       name="gfpdf_settings[<?= $args['id'] ?>][]"
-		       value="<?= esc_attr( $width ) ?>"
-		       min="0"
-		/> <?= esc_html__( 'Width', 'gravity-pdf-to-image' ) ?>
+		<label for="gfpdf_settings[<?= $args['id'] ?>]_width">
+			<input type="number"
+			       id="gfpdf_settings[<?= $args['id'] ?>]_width"
+			       class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
+			       name="gfpdf_settings[<?= $args['id'] ?>][]"
+			       value="<?= esc_attr( $width ) ?>"
+			       min="0"
+			/> <?= esc_html__( 'Width', 'gravity-pdf-to-image' ) ?>
+		</label>
 
-		<input type="number"
-		       id="gfpdf_settings[<?= $args['id'] ?>]_height"
-		       class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
-		       name="gfpdf_settings[<?= $args['id'] ?>][]"
-		       value="<?= esc_attr( $height ) ?>"
-		       min="0"
-		/> <?= esc_html__( 'Height (px)', 'gravity-pdf-to-image' ) ?>
+		<label for="gfpdf_settings[<?= $args['id'] ?>]_height">
+			<input type="number"
+			       id="gfpdf_settings[<?= $args['id'] ?>]_height"
+			       class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
+			       name="gfpdf_settings[<?= $args['id'] ?>][]"
+			       value="<?= esc_attr( $height ) ?>"
+			       min="0"
+			/> <?= esc_html__( 'Height (px)', 'gravity-pdf-to-image' ) ?>
+		</label>
 
 		&nbsp; — &nbsp;
 
@@ -246,6 +250,8 @@ class AddPdfToImageFields {
 	 * @param string $key
 	 *
 	 * @return mixed
+	 *
+	 * @since 1.0
 	 */
 	public function sanitize_resize_and_crop_field( $new_value, $key ) {
 		if ( $key === 'pdf_to_image_resize_and_crop' ) {

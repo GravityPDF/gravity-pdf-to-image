@@ -2,6 +2,8 @@
 
 namespace GFPDF\Plugins\PdfToImage\Image;
 
+use GPDFAPI;
+
 /**
  * @package     Gravity PDF to Image
  * @copyright   Copyright (c) 2019, Blue Liquid Designs
@@ -41,12 +43,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Common {
 
+	/**
+	 * @var string
+	 *
+	 * @since 1.0
+	 */
 	protected $tmp_path;
 
 	/**
 	 * Common constructor.
 	 *
 	 * @param $tmp_path
+	 *
+	 * @since 1.0
 	 */
 	public function __construct( $tmp_path ) {
 		$this->tmp_path = $tmp_path;
@@ -68,8 +77,8 @@ class Common {
 	/**
 	 * Check if specific Notification setting is selected
 	 *
-	 * @param string $type
-	 * @param array $settings
+	 * @param string $type     The setting value to check
+	 * @param array  $settings A form's PDF setting
 	 *
 	 * @return bool
 	 */
@@ -125,7 +134,7 @@ class Common {
 		global $wp_rewrite;
 
 		/** @var \GFPDF\Model\Model_PDF $model_pdf */
-		$model_pdf = \GPDFAPI::get_mvc_class( 'Model_PDF' );
+		$model_pdf = GPDFAPI::get_mvc_class( 'Model_PDF' );
 		$url       = $model_pdf->get_pdf_url( $pdf_id, $entry_id, false, false, false );
 
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -161,6 +170,8 @@ class Common {
 	 * @param string $file
 	 *
 	 * @return string
+	 *
+	 * @since 1.0
 	 */
 	public function get_name_from_pdf( $file ) {
 		return sprintf( '%s.jpg', basename( $file, '.pdf' ) );
@@ -172,6 +183,8 @@ class Common {
 	 * @param int    $entry_id
 	 *
 	 * @return string
+	 *
+	 * @since 1.0
 	 */
 	public function get_image_path_from_pdf( $file, $form_id, $entry_id ) {
 		$image_tmp_directory = $this->tmp_path . $form_id . $entry_id . '/';

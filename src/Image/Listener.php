@@ -47,11 +47,13 @@ class Listener {
 
 	/**
 	 * @var Common
+	 * @since 1.0
 	 */
 	protected $image_common;
 
 	/**
 	 * @var PdfSecurity
+	 * @since 1.0
 	 */
 	protected $pdf_security;
 
@@ -60,12 +62,18 @@ class Listener {
 	 *
 	 * @param Common      $image_common
 	 * @param PdfSecurity $security
+	 *
+	 * @since 1.0
 	 */
 	public function __construct( Common $image_common, PdfSecurity $security ) {
 		$this->image_common = $image_common;
 		$this->pdf_security = $security;
 	}
 
+
+	/**
+	 * @since 1.0
+	 */
 	public function init() {
 		add_action( 'gfpdf_pre_pdf_generation_initilise', [ $this, 'maybe_display_cached_pdf_image' ], 10, 5 );
 		add_action( 'gfpdf_pre_pdf_generation_output', [ $this, 'maybe_generate_image_from_pdf' ], 10, 5 );
@@ -78,7 +86,11 @@ class Listener {
 	 * @param array      $settings
 	 * @param Helper_PDF $helper_pdf
 	 *
-	 * @throws \Exception
+	 * @throws \ImagickException
+	 * @throws \Mpdf\MpdfException
+	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
+	 *
+	 * @since 1.0
 	 */
 	public function maybe_display_cached_pdf_image( $mpdf, $form, $entry, $settings, $helper_pdf ) {
 		if ( ! $this->is_pdf_image_url() ) {
@@ -112,7 +124,12 @@ class Listener {
 	 * @param array      $settings
 	 * @param Helper_PDF $helper_pdf
 	 *
+	 * @throws \ImagickException
+	 * @throws \Mpdf\MpdfException
+	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
 	 * @throws \Exception
+	 *
+	 * @since 1.0
 	 */
 	public function maybe_generate_image_from_pdf( $mpdf, $form, $entry, $settings, $helper_pdf ) {
 		if ( ! $this->is_pdf_image_url() ) {
@@ -120,7 +137,7 @@ class Listener {
 		}
 
 		/* If no image configured, throw error */
-		if( ! $this->image_common->has_active_image_settings() ) {
+		if ( ! $this->image_common->has_active_image_settings( $settings ) ) {
 			wp_die( __( 'This PDF has not been configured to convert to an image.', 'gravity-pdf-to-image' ) );
 		}
 
@@ -154,7 +171,11 @@ class Listener {
 	}
 
 	/**
+	 * Check if user is requesting to generate a PDF URL
+	 *
 	 * @return bool
+	 *
+	 * @since 1.0
 	 */
 	public function is_pdf_image_url() {
 		$action = isset( $GLOBALS['wp']->query_vars['action'] ) ? $GLOBALS['wp']->query_vars['action'] : '';
@@ -162,7 +183,11 @@ class Listener {
 	}
 
 	/**
+	 * Return the subaction and page data from the query variables (if they exist)
+	 *
 	 * @return array
+	 *
+	 * @since 1.0
 	 */
 	public function get_pdf_image_url_config() {
 		$subaction = isset( $GLOBALS['wp']->query_vars['sub_action'] ) ? $GLOBALS['wp']->query_vars['sub_action'] : '';

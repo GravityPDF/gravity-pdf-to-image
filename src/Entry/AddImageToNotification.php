@@ -2,11 +2,12 @@
 
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
+use GFPDF\Plugins\PdfToImage\Exception\PdfGenerationAndSave;
 use GFPDF\Plugins\PdfToImage\Image\Generate;
-use GFPDF\Plugins\PdfToImage\Image\ImageConfig;
 use GFPDF\Plugins\PdfToImage\Image\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfWrapper;
+use Exception;
 
 /**
  * @package     Gravity PDF to Image
@@ -56,11 +57,15 @@ class AddImageToNotification {
 
 	/**
 	 * @var Common
+	 *
+	 * @since 1.0
 	 */
 	protected $image_common;
 
 	/**
 	 * @var PdfSecurity
+	 *
+	 * @since 1.0
 	 */
 	protected $pdf_security;
 
@@ -69,6 +74,8 @@ class AddImageToNotification {
 	 *
 	 * @param Common      $image_common
 	 * @param PdfSecurity $pdf_security
+	 *
+	 * @since 1.0
 	 */
 	public function __construct( Common $image_common, PdfSecurity $pdf_security ) {
 		$this->pdf_security = $pdf_security;
@@ -86,10 +93,12 @@ class AddImageToNotification {
 	/**
 	 * Register the PDFs that need to be converted to images
 	 *
-	 * @param $form
-	 * @param $entry
-	 * @param $settings
-	 * @param $notification
+	 * @param array $form         The Gravity Form
+	 * @param array $entry        The Gravity Form Entry
+	 * @param array $settings     The Gravity PDF Form Setting
+	 * @param array $notification A Gravity Forms Notification
+	 *
+	 * @since 1.0
 	 */
 	public function register_pdf_to_convert_to_image( $form, $entry, $settings, $notification ) {
 		$this->settings = [];
@@ -107,7 +116,6 @@ class AddImageToNotification {
 	 * @param array $entry        The Gravity Form Entry
 	 *
 	 * @return array $notification
-	 * @throws \ImagickException
 	 *
 	 * @since 1.0
 	 */
@@ -116,7 +124,11 @@ class AddImageToNotification {
 			return $notification;
 		}
 
-		$notification['attachments'] = $this->attach_files_to_notification( $notification['attachments'], $entry );
+		try {
+			$notification['attachments'] = $this->attach_files_to_notification( $notification['attachments'], $entry );
+		} catch ( Exception $e ) {
+			/* TODO log */
+		}
 
 		return $notification;
 	}
@@ -124,11 +136,15 @@ class AddImageToNotification {
 	/**
 	 * Handle the Image/PDF Generation and attach to the notification based off the PDF settings
 	 *
-	 * @param array $attachments
-	 * @param array $entry
+	 * @param array $attachments Gravity Forms Notification Attachments
+	 * @param array $entry       The Gravity Form Entry
 	 *
 	 * @return array
+	 *
 	 * @throws \ImagickException
+	 * @throws PdfGenerationAndSave
+	 * @throws \Mpdf\MpdfException
+	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
 	 *
 	 * @since 1.0
 	 */
@@ -168,7 +184,10 @@ class AddImageToNotification {
 	 * @param array $settings The Gravity PDF Form setting
 	 *
 	 * @return array
-	 * @throws \Exception
+	 *
+	 * @throws \Mpdf\MpdfException
+	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
+	 * @throws PdfGenerationAndSave
 	 *
 	 * @since 1.0
 	 */
@@ -199,7 +218,8 @@ class AddImageToNotification {
 	 * @param array $settings
 	 *
 	 * @return PdfWrapper Return a valid Pdf object
-	 * @throws \Exception
+	 *
+	 * @throws PdfGenerationAndSave
 	 *
 	 * @since 1.0
 	 */
@@ -219,7 +239,7 @@ class AddImageToNotification {
 
 		/* If the PDF doesn't exist, generate */
 		if ( ! is_file( $pdf->get_absolute_path() ) && ! $pdf->generate() ) {
-			throw new \Exception( 'Could not generate PDF for image conversion' );
+			throw new PdfGenerationAndSave( 'Could not generate PDF for image conversion' );
 		}
 
 		return $pdf;
