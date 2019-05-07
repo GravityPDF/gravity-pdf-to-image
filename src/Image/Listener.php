@@ -3,8 +3,10 @@
 namespace GFPDF\Plugins\PdfToImage\Image;
 
 use GFPDF\Helper\Helper_PDF;
+use GFPDF\Helper\Helper_Trait_Logger;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use Mpdf\Output\Destination;
+use Exception;
 
 /**
  * @package     Gravity PDF to Image
@@ -45,6 +47,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Listener {
 
+	use Helper_Trait_Logger;
+
 	/**
 	 * @var Common
 	 * @since 1.0
@@ -80,15 +84,13 @@ class Listener {
 	}
 
 	/**
+	 * Load the cached image (if exists)
+	 *
 	 * @param \Mpdf\Mpdf $mpdf
 	 * @param array      $form
 	 * @param array      $entry
 	 * @param array      $settings
 	 * @param Helper_PDF $helper_pdf
-	 *
-	 * @throws \ImagickException
-	 * @throws \Mpdf\MpdfException
-	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
 	 *
 	 * @since 1.0
 	 */
@@ -106,28 +108,31 @@ class Listener {
 
 		list( $subaction ) = $this->get_pdf_image_url_config();
 
-		$image_config = $this->image_common->get_settings( $settings );
-		$image_data   = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
-		$image        = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config + [ 'skip_validation' => true ] );
+		try {
+			$image_config = $this->image_common->get_settings( $settings );
+			$image_data   = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
+			$image        = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config + [ 'skip_validation' => true ] );
 
-		if ( $subaction === 'download' ) {
-			$image->to_download( $image_data );
-		} else {
-			$image->to_screen( $image_data );
+			$this->logger->addNotice( 'Displaying PDF ID#%1$s Cached Image', $settings['id'] );
+
+			if ( $subaction === 'download' ) {
+				$image->to_download( $image_data );
+			} else {
+				$image->to_screen( $image_data );
+			}
+		} catch ( Exception $e ) {
+			$this->handle_error( $e );
 		}
 	}
 
 	/**
+	 * Generate the current PDF, then convert it to an image and display
+	 *
 	 * @param \Mpdf\Mpdf $mpdf
 	 * @param array      $form
 	 * @param array      $entry
 	 * @param array      $settings
 	 * @param Helper_PDF $helper_pdf
-	 *
-	 * @throws \ImagickException
-	 * @throws \Mpdf\MpdfException
-	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
-	 * @throws \Exception
 	 *
 	 * @since 1.0
 	 */
@@ -148,26 +153,61 @@ class Listener {
 
 		list( $subaction, $page ) = $this->get_pdf_image_url_config();
 
-		$image_config         = $this->image_common->get_settings( $settings );
-		$image_config['page'] = $page;
-		$image_absolute_path  = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $entry['id'] );
-		$image_name           = basename( $image_absolute_path );
+		try {
+			$image_config         = $this->image_common->get_settings( $settings );
+			$image_config['page'] = $page;
+			$image_absolute_path  = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $entry['id'] );
+			$image_name           = basename( $image_absolute_path );
 
-		$mpdf->encrypted = false;
-		$helper_pdf->save_pdf( $mpdf->Output( '', Destination::STRING_RETURN ) );
+			$mpdf->encrypted = false;
+			$helper_pdf->save_pdf( $mpdf->Output( '', Destination::STRING_RETURN ) );
 
-		/* Save the image to disk for caching purposes, then display to the user */
-		$image = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config );
-		$image->to_file( $image_absolute_path );
-		$image_data = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
+			/* Save the image to disk for caching purposes, then display to the user */
+			$image = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config );
+			$image->to_file( $image_absolute_path );
+			$image_data = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
 
-		if ( $subaction === 'download' ) {
-			$image->to_download( $image_data );
-		} else {
-			$image->to_screen( $image_data );
+			if ( $subaction === 'download' ) {
+				$image->to_download( $image_data );
+			} else {
+				$image->to_screen( $image_data );
+			}
+
+			wp_die();
+		} catch ( Exception $e ) {
+			$this->handle_error( $e );
+		}
+	}
+
+	/**
+	 * Log exception and display error to user
+	 *
+	 * @param Exception $exception
+	 *
+	 * @since 1.0
+	 */
+	protected function handle_error( $exception ) {
+		$this->logger->addError(
+			'Image Generation Error',
+			[
+				'exception_msg'  => $exception->getMessage(),
+				'exception_file' => $exception->getFile(),
+				'exception_line' => $exception->getLine(),
+			]
+		);
+
+		if ( $this->pdf_security->has_capability( 'gravityforms_view_entries' ) ) {
+			wp_die(
+				sprintf(
+					'%s in %s on line %s',
+					$exception->getMessage(),
+					$exception->getFile(),
+					$exception->getLine()
+				)
+			);
 		}
 
-		wp_die();
+		wp_die( esc_html__( 'There was a problem generating your Image', 'gravity-pdf-to-image' ) );
 	}
 
 	/**

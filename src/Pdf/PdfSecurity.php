@@ -64,4 +64,16 @@ class PdfSecurity {
 	public function is_password_protected( $settings ) {
 		return $settings['security'] === 'Yes' && ! empty( $settings['password'] );
 	}
+
+	/**
+	 * Check if the current user has this capability
+	 *
+	 * @param string $capability
+	 *
+	 * @return bool
+	 */
+	public function has_capability( $capability ) {
+		$gform = \GPDFAPI::get_form_class();
+		return $gform->has_capability( $capability );
+	}
 }
