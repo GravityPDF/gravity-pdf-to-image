@@ -108,7 +108,7 @@ class Gpdf_To_Image_Checks {
 		}
 
 		if ( version_compare( phpversion( 'imagick' ), '2.2.0', '<' ) ) {
-			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %3$sGet more info%4$s.', 'gravity-pdf-to-image' ), '<a href="#php-imagick-version">', '</a>' );
+			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %1$sGet more info%2$s.', 'gravity-pdf-to-image' ), '<a href="#php-imagick-version">', '</a>' );
 		}
 
 		$required_methods = [
@@ -135,13 +135,13 @@ class Gpdf_To_Image_Checks {
 		];
 
 		if ( ! defined( 'Imagick::COMPRESSION_JPEG' ) || ! defined( 'Imagick::FILTER_LANCZOS' ) || ! defined( 'Imagick::COLORSPACE_CMYK' ) ) {
-			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %3$sGet more info%4$s.', 'gravity-pdf-to-image' ), '<a href="#php-imagick-version">', '</a>' );
+			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %1$sGet more info%2$s.', 'gravity-pdf-to-image' ), '<a href="#php-imagick-version">', '</a>' );
 		}
 
 		$required_methods = array_map( 'strtolower', $required_methods );
 		$class_methods    = array_map( 'strtolower', get_class_methods( 'Imagick' ) );
 		if ( array_diff( $required_methods, $class_methods ) ) {
-			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %3$sGet more info%4$s.', 'gravity-pdf-to-image' ), '<a href="#php-imagick-version">', '</a>' );
+			$this->notices[] = sprintf( esc_html__( 'You are running an outdated version of the PHP Extension Imagick. Contact your web hosting provider to update. %1$sGet more info%2$s.', 'gravity-pdf-to-image' ), '<a href="#php-imagick-version">', '</a>' );
 		}
 
 		$required_formats = [
