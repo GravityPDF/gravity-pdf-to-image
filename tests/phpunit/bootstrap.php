@@ -65,6 +65,15 @@ class GravityPDF_Universal_Selector_Unit_Tests_Bootstrap {
 		require $this->plugin_dir . '/tmp/gravity-forms-pdf-extended/vendor/autoload.php';
 		$this->log = new \Monolog\Logger( 'test' );
 		$this->log->pushHandler( new \Monolog\Handler\NullHandler( \Monolog\Logger::INFO ) ); /* throw logs away */
+
+		/* Change PDF tmp directory */
+		$working_dir = sys_get_temp_dir() . '/gravitypdf/11/';
+		wp_mkdir_p( $working_dir );
+		copy( __DIR__ . '/unit-tests/pdf/sample.pdf', $working_dir . 'sample.pdf' );
+
+		add_filter( 'gfpdf_tmp_location', function( $path ) use ( $working_dir ) {
+			return dirname( $working_dir ) . '/';
+		} );
 	}
 }
 
