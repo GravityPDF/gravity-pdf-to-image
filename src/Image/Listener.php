@@ -20,7 +20,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-
 /**
  * Class Listener
  *
@@ -54,7 +53,6 @@ class Listener {
 		$this->image_common = $image_common;
 		$this->pdf_security = $security;
 	}
-
 
 	/**
 	 * @since 1.0

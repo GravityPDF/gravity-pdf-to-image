@@ -24,7 +24,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-
 /**
  * Class GravityPdfImage
  *

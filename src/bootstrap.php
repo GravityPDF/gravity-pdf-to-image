@@ -34,7 +34,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-
 /* Load Composer */
 require_once( __DIR__ . '/../vendor/autoload.php' );
 
