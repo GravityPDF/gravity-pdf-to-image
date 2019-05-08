@@ -42,6 +42,21 @@ class TestAddImageLinkToEntryDetails extends WP_UnitTestCase {
 	 * @since 1.0
 	 */
 	public function test_add_image_link_to_entry_details() {
+		$pdf = [ 'settings' => [ 'pdf_to_image_toggle' => 0 ] ];
+		ob_start();
+		$this->class->add_image_link_to_entry_details( $pdf );
+		$this->assertEmpty( ob_get_clean() );
 
+		$pdf = [
+			'entry_id' => 1,
+			'settings' => [
+				'id'                  => '12345678',
+				'pdf_to_image_toggle' => 1,
+				'pdf_to_image_page'   => 1,
+			],
+		];
+		ob_start();
+		$this->class->add_image_link_to_entry_details( $pdf );
+		$this->assertRegExp( '/\<a href="(.+)"\>(.+)\<\/a\>/', ob_get_clean() );
 	}
 }
