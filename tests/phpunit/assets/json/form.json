@@ -1,0 +1,152 @@
+{
+  "0": {
+    "title": "Gravity PDF to Image",
+    "description": "",
+    "labelPlacement": "top_label",
+    "descriptionPlacement": "below",
+    "button": {
+      "type": "text",
+      "text": "Submit",
+      "imageUrl": ""
+    },
+    "fields": [
+      {
+        "type": "text",
+        "id": 1,
+        "label": "Name",
+        "adminLabel": "",
+        "isRequired": false,
+        "size": "medium",
+        "errorMessage": "",
+        "visibility": "visible",
+        "inputs": null,
+        "formId": 185,
+        "description": "",
+        "allowsPrepopulate": false,
+        "inputMask": false,
+        "inputMaskValue": "",
+        "inputMaskIsCustom": false,
+        "maxLength": "",
+        "inputType": "",
+        "labelPlacement": "",
+        "descriptionPlacement": "",
+        "subLabelPlacement": "",
+        "placeholder": "",
+        "cssClass": "",
+        "inputName": "",
+        "noDuplicates": false,
+        "defaultValue": "",
+        "choices": "",
+        "conditionalLogic": "",
+        "productField": "",
+        "enablePasswordInput": "",
+        "multipleFiles": false,
+        "maxFiles": "",
+        "calculationFormula": "",
+        "calculationRounding": "",
+        "enableCalculation": "",
+        "disableQuantity": false,
+        "displayAllCategories": false,
+        "useRichTextEditor": false,
+        "gwaclEnable": false,
+        "gp-unique-id_starting_number": "",
+        "fields": "",
+        "advancedConditionalLogic": ""
+      }
+    ],
+    "version": "2.4.6.15",
+    "id": 185,
+    "nextFieldId": 2,
+    "useCurrentUserAsAuthor": true,
+    "postContentTemplateEnabled": false,
+    "postTitleTemplateEnabled": false,
+    "postTitleTemplate": "",
+    "postContentTemplate": "",
+    "lastPageButton": null,
+    "pagination": null,
+    "firstPageCssClass": null,
+    "gfpdf_form_settings": {
+      "5cd3279ba65c9": {
+        "name": "Zadani",
+        "template": "zadani",
+        "filename": "Zadani",
+        "conditionalLogic": null,
+        "pdf_size": "A4",
+        "custom_pdf_size": [
+          "0",
+          "0",
+          "millimeters"
+        ],
+        "orientation": "portrait",
+        "font": "dejavusans",
+        "font_size": "10",
+        "font_colour": "#000000",
+        "rtl": "No",
+        "zadani_border_colour": "#CCCCCC",
+        "show_form_title": "No",
+        "show_page_names": "No",
+        "show_html": "No",
+        "show_section_content": "No",
+        "enable_conditional": "Yes",
+        "show_empty": "No",
+        "background_color": "#FFF",
+        "background_image": "",
+        "header": "",
+        "first_header": "",
+        "footer": "",
+        "first_footer": "",
+        "format": "Standard",
+        "security": "No",
+        "password": "",
+        "privileges": [
+          "copy",
+          "print",
+          "print-highres",
+          "modify",
+          "annot-forms",
+          "fill-forms",
+          "extract",
+          "assemble"
+        ],
+        "master_password": "",
+        "image_dpi": "96",
+        "save": "No",
+        "public_access": "No",
+        "restrict_owner": "No",
+        "id": "5cd3279ba65c9",
+        "active": true
+      }
+    },
+    "is_active": "1",
+    "date_created": "2019-05-08 18:58:30",
+    "is_trash": "0",
+    "confirmations": [
+      {
+        "id": "5cd326d6b62b2",
+        "name": "Default Confirmation",
+        "isDefault": true,
+        "type": "message",
+        "message": "Thanks for contacting us! We will get in touch with you shortly.",
+        "url": "",
+        "pageId": "",
+        "queryString": ""
+      }
+    ],
+    "notifications": [
+      {
+        "id": "5cd326d6b5bf2",
+        "isActive": true,
+        "to": "{admin_email}",
+        "name": "Admin Notification",
+        "event": "form_submission",
+        "toType": "email",
+        "subject": "New submission from {form_title}",
+        "message": "{all_fields}"
+      }
+    ],
+    "feeds": {
+      "gravityflow": []
+    }
+  },
+  "version": "2.4.6.15"
+}

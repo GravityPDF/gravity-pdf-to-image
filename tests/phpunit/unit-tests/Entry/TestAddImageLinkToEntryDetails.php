@@ -24,7 +24,7 @@ class TestAddImageLinkToEntryDetails extends WP_UnitTestCase {
 	 * @since 1.0
 	 */
 	public function setUp() {
-		$this->class = new AddImageLinkToEntryDetails( new Common( new PdfSecurity(), sys_get_temp_dir() ) );
+		$this->class = new AddImageLinkToEntryDetails( new Common( new PdfSecurity(), sys_get_temp_dir() . '/' ) );
 
 		parent::setUp();
 	}
