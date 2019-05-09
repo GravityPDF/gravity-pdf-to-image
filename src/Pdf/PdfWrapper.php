@@ -114,4 +114,13 @@ class PdfWrapper {
 	public function get_path() {
 		return $this->generator->get_path();
 	}
+
+	/**
+	 * @return \mPDF
+	 *
+	 * @since 1.0
+	 */
+	public function get_pdf_class() {
+		return $this->generator->get_pdf_class();
+	}
 }
