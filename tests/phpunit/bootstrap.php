@@ -44,6 +44,7 @@ class GravityPDF_Universal_Selector_Unit_Tests_Bootstrap {
 
 		/* load the WP testing environment */
 		require_once( $this->wp_tests_dir . '/includes/bootstrap.php' );
+		require_once __DIR__ . '/unit-tests/GpdfUnitTestCase.php';
 	}
 
 	/**
@@ -67,12 +68,8 @@ class GravityPDF_Universal_Selector_Unit_Tests_Bootstrap {
 		$this->log->pushHandler( new \Monolog\Handler\NullHandler( \Monolog\Logger::INFO ) ); /* throw logs away */
 
 		/* Change PDF tmp directory */
-		$working_dir = sys_get_temp_dir() . '/gravitypdf/11/';
-		wp_mkdir_p( $working_dir );
-		copy( __DIR__ . '/assets/pdf/sample.pdf', $working_dir . 'sample.pdf' );
-
-		add_filter( 'gfpdf_tmp_location', function( $path ) use ( $working_dir ) {
-			return dirname( $working_dir ) . '/';
+		add_filter( 'gfpdf_tmp_location', function( $path )  {
+			return sys_get_temp_dir() . '/gravitypdf/';
 		} );
 	}
 }

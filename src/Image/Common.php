@@ -199,14 +199,14 @@ class Common {
 	 */
 	public function get_pdf_and_image_path_details( $entry, $settings ) {
 		$pdf        = $this->maybe_generate_tmp_pdf( $entry, $settings );
-		$image_info = new Generate( $this, $pdf->get_absolute_path(), $this->get_settings( $settings ) );
+		$image_info = new Generate( $this, $pdf->get_full_pdf_path(), $this->get_settings( $settings ) );
 
 		/* If we had to generate a tmp PDF, reset the image name back to the original */
 		if ( $this->pdf_security->is_security_enabled( $settings ) ) {
 			$image_info->set_image_name( $this->get_original_pdf_filename( $pdf->get_filename() ) );
 		}
 
-		$pdf_absolute_path   = $pdf->get_absolute_path();
+		$pdf_absolute_path   = $pdf->get_full_pdf_path();
 		$image_absolute_path = $this->get_image_path_from_pdf( $pdf_absolute_path, $entry['form_id'], $entry['id'] );
 		$image_tmp_directory = dirname( $image_absolute_path );
 
@@ -244,7 +244,7 @@ class Common {
 		}
 
 		/* If the PDF doesn't exist, generate */
-		if ( ! is_file( $pdf->get_absolute_path() ) && ! $pdf->generate() ) {
+		if ( ! is_file( $pdf->get_full_pdf_path() ) && ! $pdf->generate() ) {
 			throw new PdfGenerationAndSave( 'Could not generate PDF for image conversion' );
 		}
 

@@ -24,7 +24,8 @@ class TestAlwaysSaveImage extends WP_UnitTestCase {
 	 * @since 1.0
 	 */
 	public function setUp() {
-		$this->class = new AlwaysSaveImage( new Common( new PdfSecurity(), sys_get_temp_dir() . '/' ), new PdfSecurity() );
+		$data        = \GPDFAPI::get_data_class();
+		$this->class = new AlwaysSaveImage( new Common( new PdfSecurity(), $data->template_tmp_location ), new PdfSecurity() );
 
 		parent::setUp();
 	}

@@ -2,9 +2,9 @@
 
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
+use GFPDF\Plugins\PdfToImage\GpdfUnitTestCase;
 use GFPDF\Plugins\PdfToImage\Image\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
-use WP_UnitTestCase;
 
 /**
  * Class TestAddImageToNotification
@@ -13,7 +13,7 @@ use WP_UnitTestCase;
  *
  * @group   Entry
  */
-class TestAddImageToNotification extends WP_UnitTestCase {
+class TestAddImageToNotification extends GpdfUnitTestCase {
 
 	/**
 	 * @var AddImageLinkToNotificationWithGetter
@@ -130,7 +130,9 @@ class TestAddImageToNotification extends WP_UnitTestCase {
 		$this->assertCount( 1, $this->class->maybe_attach_files_to_notifications( $notification, $form, $entry )['attachments'] );
 
 		/* Verify it's attached with cached copy */
-		touch( $this->template_tmp_location . '11/sample.jpg' );
+		wp_mkdir_p( $this->template_tmp_location . '11' );
+		copy( __DIR__ . '/../../assets/pdf/sample.pdf', $this->template_tmp_location . '11/sample.pdf' );
+		copy( __DIR__ . '/../../assets/image/sample.jpg', $this->template_tmp_location . '11/sample.jpg' );
 
 		$this->class->register_pdf_to_convert_to_image( $form, $entry, $pdf, $notification );
 		$results = $this->class->maybe_attach_files_to_notifications( $notification, $form, $entry );

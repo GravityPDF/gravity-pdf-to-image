@@ -6,6 +6,8 @@ use GFPDF\Plugins\PdfToImage\Exception\PdfToImageInvalidArgument;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use WP_UnitTestCase;
 
+require_once( __DIR__ . '/helpers.php' );
+
 /**
  * Class TestGenerate
  *
@@ -16,15 +18,14 @@ use WP_UnitTestCase;
 class TestGenerate extends WP_UnitTestCase {
 
 	/**
-	 * @var array
-	 */
-	static $headers = [];
-
-	/**
 	 * @since 1.0
 	 */
 	public function tearDown() {
-		self::$headers = [];
+		Header::$headers = [];
+
+		$data = \GPDFAPI::get_data_class();
+		$misc = \GPDFAPI::get_misc_class();
+		$misc->rmdir( $data->template_tmp_location );
 
 		parent::tearDown();
 	}
@@ -153,15 +154,15 @@ class TestGenerate extends WP_UnitTestCase {
 	public function test_to_screen() {
 		ob_start();
 		$this->get()->to_screen();
-		$this->assertTrue( $this->is_jpeg( ob_get_clean() ) );
-		$this->assertSame( 'Content-Type: image/jpg', self::$headers[0] );
-		$this->assertSame( 'Content-Disposition: inline; filename="sample.jpg"', self::$headers[1] );
+		$this->assertTrue( is_jpeg( ob_get_clean() ) );
+		$this->assertSame( 'Content-Type: image/jpg', Header::$headers[0] );
+		$this->assertSame( 'Content-Disposition: inline; filename="sample.jpg"', Header::$headers[1] );
 
 		ob_start();
 		$image = new ImageData( 'image/png', 't', 'test.png' );
 		$this->get()->to_screen( $image );
-		$this->assertSame( 'Content-Type: image/png', self::$headers[2] );
-		$this->assertSame( 'Content-Disposition: inline; filename="test.png"', self::$headers[3] );
+		$this->assertSame( 'Content-Type: image/png', Header::$headers[2] );
+		$this->assertSame( 'Content-Disposition: inline; filename="test.png"', Header::$headers[3] );
 		ob_get_clean();
 	}
 
@@ -171,19 +172,19 @@ class TestGenerate extends WP_UnitTestCase {
 	public function test_to_download() {
 		ob_start();
 		$this->get()->to_download();
-		$this->assertTrue( $this->is_jpeg( ob_get_clean() ) );
-		$this->assertSame( 'Cache-Control: must-revalidate, post-check=0, pre-check=0', self::$headers[0] );
-		$this->assertSame( 'Content-Description: File Transfer', self::$headers[1] );
-		$this->assertStringStartsWith( 'Content-Length: ', self::$headers[2] );
-		$this->assertSame( 'Content-Transfer-Encoding: Binary', self::$headers[3] );
-		$this->assertSame( 'Content-Type: application/octet-stream', self::$headers[4] );
-		$this->assertSame( 'Content-Disposition: attachment; filename="sample.jpg"', self::$headers[5] );
+		$this->assertTrue( is_jpeg( ob_get_clean() ) );
+		$this->assertSame( 'Cache-Control: must-revalidate, post-check=0, pre-check=0', Header::$headers[0] );
+		$this->assertSame( 'Content-Description: File Transfer', Header::$headers[1] );
+		$this->assertStringStartsWith( 'Content-Length: ', Header::$headers[2] );
+		$this->assertSame( 'Content-Transfer-Encoding: Binary', Header::$headers[3] );
+		$this->assertSame( 'Content-Type: application/octet-stream', Header::$headers[4] );
+		$this->assertSame( 'Content-Disposition: attachment; filename="sample.jpg"', Header::$headers[5] );
 
 		ob_start();
 		$image = new ImageData( 'image/png', 't', 'test.png' );
 		$this->get()->to_download( $image );
-		$this->assertStringStartsWith( 'Content-Length: 1', self::$headers[8] );
-		$this->assertSame( 'Content-Disposition: attachment; filename="test.png"', self::$headers[11] );
+		$this->assertStringStartsWith( 'Content-Length: 1', Header::$headers[8] );
+		$this->assertSame( 'Content-Disposition: attachment; filename="test.png"', Header::$headers[11] );
 		ob_get_clean();
 	}
 
@@ -201,7 +202,7 @@ class TestGenerate extends WP_UnitTestCase {
 	 * @since 1.0
 	 */
 	public function test_to_string() {
-		$this->assertTrue( $this->is_jpeg( $this->get()->to_string() ) );
+		$this->assertTrue( is_jpeg( $this->get()->to_string() ) );
 	}
 
 	/**
@@ -212,7 +213,7 @@ class TestGenerate extends WP_UnitTestCase {
 
 		$this->assertSame( 'image/jpg', $data->get_mime() );
 		$this->assertSame( 'sample.jpg', $data->get_filename() );
-		$this->assertTrue( $this->is_jpeg( $data->get_data() ) );
+		$this->assertTrue( is_jpeg( $data->get_data() ) );
 	}
 
 	/**
@@ -237,20 +238,4 @@ class TestGenerate extends WP_UnitTestCase {
 
 		unlink( $filename );
 	}
-
-	/**
-	 * Check the magic bytes of the data and verify it is a JPG
-	 *
-	 * @param string $data
-	 *
-	 * @return bool
-	 */
-	protected function is_jpeg( $data ) {
-		return ( bin2hex( $data[0] ) == 'ff' && bin2hex( $data[1] ) == 'd8' );
-	}
-
-}
-
-function header( $string ) {
-	array_push( TestGenerate::$headers, $string );
 }

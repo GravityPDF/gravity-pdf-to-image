@@ -4,6 +4,7 @@ namespace GFPDF\Plugins\PdfToImage\Image;
 
 use GFPDF\Helper\Helper_PDF;
 use GFPDF\Helper\Helper_Trait_Logger;
+use GFPDF\Plugins\PdfToImage\Exception\PdfToImage;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use Mpdf\Output\Destination;
 use Exception;
@@ -120,21 +121,19 @@ class Listener {
 			return;
 		}
 
-		/* If no image configured, throw error */
-		if ( ! $this->image_common->has_active_image_settings( $settings ) ) {
-			/* TODO - throw exception */
-			wp_die( __( 'This PDF has not been configured to convert to an image.', 'gravity-pdf-to-image' ) );
-		}
-
-		/* If PDF password protected, throw error */
-		if ( $this->pdf_security->is_password_protected( $settings ) ) {
-			/* TODO - throw exception */
-			wp_die( __( 'Password protected PDFs cannot be converted to images.', 'gravity-pdf-to-image' ) );
-		}
-
-		list( $subaction, $page ) = $this->get_pdf_image_url_config();
-
 		try {
+			/* If no image configured, throw error */
+			if ( ! $this->image_common->has_active_image_settings( $settings ) ) {
+				throw new PdfToImage( esc_html__( 'This PDF has not been configured to convert to an image.', 'gravity-pdf-to-image' ) );
+			}
+
+			/* If PDF password protected, throw error */
+			if ( $this->pdf_security->is_password_protected( $settings ) ) {
+				throw new PdfToImage( esc_html__( 'Password protected PDFs cannot be converted to images.', 'gravity-pdf-to-image' ) );
+			}
+
+			list( $subaction, $page ) = $this->get_pdf_image_url_config();
+
 			$image_config         = $this->image_common->get_settings( $settings );
 			$image_config['page'] = $page;
 			$image_absolute_path  = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $entry['id'] );
@@ -188,7 +187,7 @@ class Listener {
 			);
 		}
 
-		wp_die( esc_html__( 'There was a problem generating your Image', 'gravity-pdf-to-image' ) );
+		wp_die( esc_html__( 'There was a problem generating your image.', 'gravity-pdf-to-image' ) );
 	}
 
 	/**

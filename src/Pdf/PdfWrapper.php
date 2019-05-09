@@ -100,7 +100,7 @@ class PdfWrapper {
 	 *
 	 * @since 1.0
 	 */
-	public function get_absolute_path() {
+	public function get_full_pdf_path() {
 		return $this->generator->get_full_pdf_path();
 	}
 
@@ -116,11 +116,17 @@ class PdfWrapper {
 	}
 
 	/**
-	 * @return \mPDF
+	 * Save the PDF to our tmp directory
 	 *
-	 * @since 1.0
+	 * @param string $string
+	 *
+	 * @return string
+	 *
+	 * @throws \Exception
+	 *
+	 * @since  1.0
 	 */
-	public function get_pdf_class() {
-		return $this->generator->get_pdf_class();
+	public function save_pdf( $string ) {
+		return $this->generator->save_pdf( $string );
 	}
 }
