@@ -95,6 +95,9 @@ class TestCommon extends WP_UnitTestCase {
 		$this->assertSame( true, $results['crop'] );
 	}
 
+	/**
+	 * @since 1.0
+	 */
 	public function test_get_url() {
 
 		/* Test with disabled permalinks */

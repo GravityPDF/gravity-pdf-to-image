@@ -400,6 +400,18 @@ class Generate {
 	}
 
 	/**
+	 * Returns the image information in object form
+	 *
+	 * @return ImageData
+	 * @throws ImagickException
+	 *
+	 * @since 1.0
+	 */
+	public function to_object() {
+		return $this->generate();
+	}
+
+	/**
 	 * Write image to file
 	 *
 	 * @param string $file The absolute path and filename of the image
