@@ -51,8 +51,8 @@ class TestAlwaysSaveImage extends WP_UnitTestCase {
 		];
 
 		$pdf = [
-			'id'       => '12345678',
-			'filename' => 'sample',
+			'id'                  => '12345678',
+			'filename'            => 'sample',
 
 			'security'            => 0,
 			'pdf_to_image_toggle' => 1,

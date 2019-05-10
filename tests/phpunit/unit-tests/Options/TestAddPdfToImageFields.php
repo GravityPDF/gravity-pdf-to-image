@@ -43,7 +43,12 @@ class TestAddPdfToImageFields extends WP_UnitTestCase {
 	 */
 	public function test_resize_and_crop_callback() {
 		ob_start();
-		$this->class->resize_and_crop_callback( [ 'id' => 'name', 'desc' => '' ] );
+		$this->class->resize_and_crop_callback(
+			[
+				'id'   => 'name',
+				'desc' => '',
+			]
+		);
 		$results = ob_get_clean();
 
 		$this->assertSame( 3, preg_match_all( '/<input type\=/', $results ) );

@@ -91,8 +91,8 @@ class TestListener extends WP_UnitTestCase {
 		];
 
 		$pdf = [
-			'id'       => '12345678',
-			'filename' => 'sample',
+			'id'                  => '12345678',
+			'filename'            => 'sample',
 
 			'security'            => 'No',
 			'pdf_to_image_toggle' => 0,
@@ -140,8 +140,8 @@ class TestListener extends WP_UnitTestCase {
 		];
 
 		$pdf = [
-			'id'       => '12345678',
-			'filename' => 'sample',
+			'id'                  => '12345678',
+			'filename'            => 'sample',
 
 			'security'            => 'No',
 			'pdf_to_image_toggle' => 0,

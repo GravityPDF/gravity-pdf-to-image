@@ -65,8 +65,8 @@ class TestAddImageToNotification extends GpdfUnitTestCase {
 		];
 
 		$pdf = [
-			'id'       => '12345678',
-			'filename' => 'sample',
+			'id'                  => '12345678',
+			'filename'            => 'sample',
 
 			'security'            => 0,
 			'pdf_to_image_toggle' => 0,
@@ -110,8 +110,8 @@ class TestAddImageToNotification extends GpdfUnitTestCase {
 		];
 
 		$pdf = [
-			'id'       => '12345678',
-			'filename' => 'sample',
+			'id'                  => '12345678',
+			'filename'            => 'sample',
 
 			'security'            => 0,
 			'pdf_to_image_toggle' => 1,
@@ -157,8 +157,8 @@ class TestAddImageToNotification extends GpdfUnitTestCase {
 	 */
 	public function test_handle_attachments() {
 		$pdf = [
-			'id'       => '12345678',
-			'filename' => 'sample',
+			'id'                  => '12345678',
+			'filename'            => 'sample',
 
 			'security'            => 0,
 			'pdf_to_image_toggle' => 1,
