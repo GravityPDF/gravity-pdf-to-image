@@ -16,12 +16,15 @@ namespace GFPDF\Plugins\PdfToImage;
  */
 class GpdfUnitTestCase extends \WP_UnitTestCase {
 
+	protected $template_tmp_location;
+
 	/**
 	 * @since 1.0
 	 */
 	public function setUp() {
 		$data = \GPDFAPI::get_data_class();
 		wp_mkdir_p( $data->template_tmp_location );
+		$this->template_tmp_location = $data->template_tmp_location;
 
 		parent::setUp();
 	}

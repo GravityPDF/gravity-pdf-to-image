@@ -2,10 +2,10 @@
 
 namespace GFPDF\Plugins\PdfToImage\Image;
 
+use GFPDF\Plugins\PdfToImage\GpdfUnitTestCase;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfWrapper;
 use Mpdf\Mpdf;
-use WP_UnitTestCase;
 
 require_once( __DIR__ . '/helpers.php' );
 
@@ -16,7 +16,7 @@ require_once( __DIR__ . '/helpers.php' );
  *
  * @group   Image
  */
-class TestListener extends WP_UnitTestCase {
+class TestListener extends GpdfUnitTestCase {
 
 	/**
 	 * @var Listener

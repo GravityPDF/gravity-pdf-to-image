@@ -21,16 +21,10 @@ class TestAddImageToNotification extends GpdfUnitTestCase {
 	protected $class;
 
 	/**
-	 * @var string
-	 */
-	protected $template_tmp_location;
-
-	/**
 	 * @since 1.0
 	 */
 	public function setUp() {
-		$data                        = \GPDFAPI::get_data_class();
-		$this->template_tmp_location = $data->template_tmp_location;
+		parent::setUp();
 
 		$this->class = new  AddImageLinkToNotificationWithGetter(
 			new Common( new PdfSecurity(), $this->template_tmp_location ),
@@ -38,8 +32,6 @@ class TestAddImageToNotification extends GpdfUnitTestCase {
 		);
 
 		$this->class->set_logger( \GPDFAPI::get_log_class() );
-
-		parent::setUp();
 	}
 
 	/**

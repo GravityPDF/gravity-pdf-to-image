@@ -2,9 +2,9 @@
 
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
+use GFPDF\Plugins\PdfToImage\GpdfUnitTestCase;
 use GFPDF\Plugins\PdfToImage\Image\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
-use WP_UnitTestCase;
 
 /**
  * Class TestAddImageLinkToEntryList
@@ -13,7 +13,7 @@ use WP_UnitTestCase;
  *
  * @group   Entry
  */
-class TestAddImageLinkToEntryList extends WP_UnitTestCase {
+class TestAddImageLinkToEntryList extends GpdfUnitTestCase {
 
 	/**
 	 * @var AddImageLinkToEntryList
@@ -24,10 +24,9 @@ class TestAddImageLinkToEntryList extends WP_UnitTestCase {
 	 * @since 1.0
 	 */
 	public function setUp() {
-		$data        = \GPDFAPI::get_data_class();
-		$this->class = new AddImageLinkToEntryList( new Common( new PdfSecurity(), $data->template_tmp_location ) );
-
 		parent::setUp();
+
+		$this->class = new AddImageLinkToEntryList( new Common( new PdfSecurity(), $this->template_tmp_location ) );
 	}
 
 	/**

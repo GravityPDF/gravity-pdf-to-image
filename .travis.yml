@@ -45,7 +45,6 @@ script:
   if [[ "$LINT" == "1" ]]; then
     $PHPCS_DIR/bin/phpcs -p .
   elif [[ "$COVERAGE" == "1" ]]; then
-   yarn run test:coverage
    ./vendor/bin/phpunit --coverage-clover=tmp/coverage/report-xml/php-coverage.xml -c phpunit.xml
   else
    ./vendor/bin/phpunit -c phpunit.xml

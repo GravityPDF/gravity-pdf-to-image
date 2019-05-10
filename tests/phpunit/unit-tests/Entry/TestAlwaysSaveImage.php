@@ -2,9 +2,9 @@
 
 namespace GFPDF\Plugins\PdfToImage\Entry;
 
+use GFPDF\Plugins\PdfToImage\GpdfUnitTestCase;
 use GFPDF\Plugins\PdfToImage\Image\Common;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
-use WP_UnitTestCase;
 
 /**
  * Class TestAlwaysSaveImage
@@ -13,7 +13,7 @@ use WP_UnitTestCase;
  *
  * @group   Entry
  */
-class TestAlwaysSaveImage extends WP_UnitTestCase {
+class TestAlwaysSaveImage extends GpdfUnitTestCase {
 
 	/**
 	 * @var AlwaysSaveImage
@@ -24,10 +24,11 @@ class TestAlwaysSaveImage extends WP_UnitTestCase {
 	 * @since 1.0
 	 */
 	public function setUp() {
-		$data        = \GPDFAPI::get_data_class();
-		$this->class = new AlwaysSaveImage( new Common( new PdfSecurity(), $data->template_tmp_location ), new PdfSecurity() );
-
 		parent::setUp();
+
+		$this->class = new AlwaysSaveImage( new Common( new PdfSecurity(), $this->template_tmp_location ), new PdfSecurity() );
+
+		$this->class->set_logger( \GPDFAPI::get_log_class() );
 	}
 
 	/**
@@ -51,13 +52,17 @@ class TestAlwaysSaveImage extends WP_UnitTestCase {
 		];
 
 		$pdf = [
-			'id'                  => '12345678',
-			'filename'            => 'sample',
+			'id'       => '12345678',
+			'filename' => 'sample',
 
 			'security'            => 0,
 			'pdf_to_image_toggle' => 1,
 			'pdf_to_image_page'   => 1,
 		];
+
+		/* Verify it's attached with cached copy */
+		wp_mkdir_p( $this->template_tmp_location . '11' );
+		copy( __DIR__ . '/../../assets/pdf/sample.pdf', $this->template_tmp_location . '11/sample.pdf' );
 
 		$this->class->maybe_save_image( '', '', $pdf, $entry, $form );
 
