@@ -44,6 +44,10 @@ class TestListener extends WP_UnitTestCase {
 
 		$GLOBALS['wp']->query_vars['action'] = 'img';
 
+		$user = wp_get_current_user();
+		$user->remove_role( 'subscriber' );
+		$user->add_role( 'administrator' );
+
 		parent::setUp();
 	}
 
@@ -55,6 +59,10 @@ class TestListener extends WP_UnitTestCase {
 		$data            = \GPDFAPI::get_data_class();
 		$misc            = \GPDFAPI::get_misc_class();
 		$misc->rmdir( $data->template_tmp_location );
+
+		$user = wp_get_current_user();
+		$user->remove_role( 'administrator' );
+		$user->add_role( 'subscriber' );
 
 		parent::tearDown();
 	}
@@ -148,11 +156,6 @@ class TestListener extends WP_UnitTestCase {
 		$this->class->maybe_generate_image_from_pdf( $mpdf, $form, $entry, $pdf, $pdf_wrapper );
 		$this->assertContains( 'There was a problem', ob_get_clean() );
 
-		/* Elevate user to administrator so we can see the exact errors */
-		$user = wp_get_current_user();
-		$user->remove_role( 'subscriber' );
-		$user->add_role( 'administrator' );
-
 		/* Test inactive settings error */
 		ob_start();
 		$this->class->maybe_generate_image_from_pdf( $mpdf, $form, $entry, $pdf, $pdf_wrapper );
@@ -212,8 +215,6 @@ class TestListener extends WP_UnitTestCase {
 
 		$this->assertSame( '', $results[0] );
 		$this->assertSame( 0, $results[1] );
-
-		$results = $this->class->get_pdf_image_url_config();
 
 		$GLOBALS['wp']->query_vars['sub_action'] = 'download';
 		$GLOBALS['wp']->query_vars['page']       = 1;

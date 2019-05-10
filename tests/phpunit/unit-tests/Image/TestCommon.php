@@ -46,6 +46,9 @@ class TestCommon extends WP_UnitTestCase {
 		$data                         = \GPDFAPI::get_data_class();
 		$data->template_font_location = $this->original_font_location;
 
+		global $wp_rewrite;
+		$wp_rewrite->permalink_structure = null;
+
 		parent::tearDown();
 	}
 
@@ -116,8 +119,6 @@ class TestCommon extends WP_UnitTestCase {
 
 		$results = $this->class->get_url( '12345678', '1', 3, true, false );
 		$this->assertContains( '/pdf/12345678/1/img/3/download/', $results );
-
-		$wp_rewrite->permalink_structure = null;
 	}
 
 	/**

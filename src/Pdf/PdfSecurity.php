@@ -29,7 +29,7 @@ class PdfSecurity {
 	 * @since 1.0
 	 */
 	public function is_security_enabled( $settings ) {
-		return ! isset( $settings['security'] ) || $settings['security'] === 'Yes';
+		return isset( $settings['security'] ) && $settings['security'] === 'Yes';
 	}
 
 	/**
@@ -42,7 +42,7 @@ class PdfSecurity {
 	 * @since 1.0
 	 */
 	public function is_password_protected( $settings ) {
-		return $settings['security'] === 'Yes' && ! empty( $settings['password'] );
+		return $this->is_security_enabled( $settings ) && ! empty( $settings['password'] );
 	}
 
 	/**

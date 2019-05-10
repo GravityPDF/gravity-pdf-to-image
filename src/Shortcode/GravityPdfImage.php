@@ -184,7 +184,7 @@ class GravityPdfImage extends Helper_Abstract_Pdf_Shortcode {
 		$settings = parent::get_pdf_config( $entry_id, $pdf_id );
 
 		if ( empty( $settings['pdf_to_image_toggle'] ) ) {
-			throw new PdfToImageInvalidArgument( 'image_not_enabled_for_pdf' );
+			throw new PdfToImageInvalidArgument( esc_html__( 'This PDF has not been configured to convert to an image.', 'gravity-pdf-to-image' ) );
 		}
 
 		return $settings;

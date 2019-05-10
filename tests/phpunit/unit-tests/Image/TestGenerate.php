@@ -31,11 +31,6 @@ class TestGenerate extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @param array $config
-	 *
-	 * @return Generate
-	 * @throws \Mpdf\MpdfException
-	 *
 	 * @since 1.0
 	 */
 	protected function get( $config = [] ) {
