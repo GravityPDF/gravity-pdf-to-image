@@ -175,8 +175,8 @@ class AddPdfToImageFields {
 		$size         = ( isset( $args['size'] ) && ! is_null( $args['size'] ) ) ? esc_attr( $args['size'] ) : 'regular';
 
 		$value  = $this->options->get_form_value( $args );
-		$width  = isset( $value[0] ) ? $value[0] : 800;
-		$height = isset( $value[1] ) ? $value[1] : 600;
+		$width  = isset( $value[0] ) ? $value[0] : '';
+		$height = isset( $value[1] ) ? $value[1] : '';
 		$crop   = isset( $value[2] ) ? $value[2] : 0;
 
 		ob_start();
