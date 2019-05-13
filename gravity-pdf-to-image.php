@@ -23,7 +23,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-
 define( 'GFPDF_PDF_TO_IMAGE_FILE', __FILE__ );
 define( 'GFPDF_PDF_TO_IMAGE_VERSION', '1.0.0' );
 
@@ -132,6 +131,7 @@ class Gpdf_To_Image_Checks {
 			'getImageProfiles',
 			'profileImage',
 			'stripImage',
+			'queryFormats',
 		];
 
 		if ( ! defined( 'Imagick::COMPRESSION_JPEG' ) || ! defined( 'Imagick::FILTER_LANCZOS' ) || ! defined( 'Imagick::COLORSPACE_CMYK' ) ) {
@@ -151,11 +151,11 @@ class Gpdf_To_Image_Checks {
 			'jpg',
 		];
 
-		$supported_formats = array_map( 'strtolower', Imagick::queryformats() );
+		$supported_formats = array_map( 'strtolower', Imagick::queryFormats() );
 		$missing_formats   = array_diff( $required_formats, $supported_formats );
 
 		if ( $missing_formats ) {
-			$this->notices[] = sprintf( esc_html__( 'The PHP Extension Imagick does not support the file format(s): %1$s. %2$sGet more info%3$s.', 'gravity-pdf-to-image' ), implode( ', ', $missing_formats ), '<a href="#php-imagick-file-formats">', '</a>' );
+			$this->notices[] = sprintf( esc_html__( 'The PHP Extension Imagick does not support the file format(s): %1$s. Contact your web hosting provider to resolve. %2$sGet more info%3$s.', 'gravity-pdf-to-image' ), implode( ', ', $missing_formats ), '<a href="#php-imagick-file-formats">', '</a>' );
 		}
 	}
 
