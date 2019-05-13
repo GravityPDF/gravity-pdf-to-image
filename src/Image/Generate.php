@@ -233,19 +233,12 @@ class Generate {
 	 * @since 1.0
 	 */
 	protected function resize_and_crop_image( Imagick $image ) {
-		if ( $this->width > 0 ) {
-			/* Ensure the largest edge gets resized */
-			$leading_edge = ! $this->crop ? $image->getImageWidth() > $image->getImageHeight() : $this->width > $this->height;
+		if ( ( $this->width > 0 || $this->height > 0 ) && $this->width < $image->getImageWidth() && $this->height < $image->getImageHeight() ) {
+			$width    = $this->width;
+			$height   = $this->height;
+			$best_fit = $width > 0 && $height > 0;
 
-			if ( $leading_edge ) {
-				$width  = $this->width;
-				$height = round( $image->getImageHeight() * ( $this->width / $image->getImageWidth() ) );
-			} else {
-				$width  = round( $image->getImageWidth() * ( $this->height / $image->getImageHeight() ) );
-				$height = $this->height;
-			}
-
-			$image->resizeImage( $width, $height, Imagick::FILTER_LANCZOS, 0.8 );
+			$image->resizeImage( $width, $height, Imagick::FILTER_LANCZOS, 0.8, $best_fit );
 
 			if ( $this->crop ) {
 				if ( $this->height > 0 && $image->getImageHeight() > $this->height ) {
