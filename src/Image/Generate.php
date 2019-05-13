@@ -234,18 +234,21 @@ class Generate {
 	 */
 	protected function resize_and_crop_image( Imagick $image ) {
 		if ( ( $this->width > 0 || $this->height > 0 ) && $this->width < $image->getImageWidth() && $this->height < $image->getImageHeight() ) {
-			$width    = $this->width;
-			$height   = $this->height;
-			$best_fit = $width > 0 && $height > 0;
 
+			if ( $this->crop ) {
+				/* When cropping, resize against the smallest edge */
+				$width  = $image->getImageWidth() > $image->getImageHeight() ? 0 : $this->width;
+				$height = $image->getImageWidth() < $image->getImageHeight() ? 0 : $this->height;
+			} else {
+				$width  = $this->width;
+				$height = $this->height;
+			}
+
+			$best_fit = $width > 0 && $height > 0;
 			$image->resizeImage( $width, $height, Imagick::FILTER_LANCZOS, 0.8, $best_fit );
 
 			if ( $this->crop ) {
-				if ( $this->height > 0 && $image->getImageHeight() > $this->height ) {
-					$image->cropImage( $image->getImageWidth(), $this->height, 0, 0 ); /* Crop $y from the bottom */
-				} elseif ( $this->width > 0 && $image->getImageWidth() > $this->width ) {
-					$image->cropImage( $this->width, $image->getImageHeight(), ( $width - $this->width ) / 2, 0 ); /* Crop $x from both left and right evenly */
-				}
+				$image->cropImage( $this->width, $this->height, 0, 0 );
 			}
 		}
 
