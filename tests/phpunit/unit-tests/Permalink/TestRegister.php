@@ -25,10 +25,16 @@ class TestRegister extends WP_UnitTestCase {
 	 */
 	protected $class;
 
+	protected $wp_rewrite_backup;
+
 	/**
 	 * @since 1.0
 	 */
 	public function setUp() {
+		global $wp_rewrite;
+		$this->wp_rewrite_backup = $wp_rewrite;
+		$wp_rewrite = new \WP_Rewrite();
+
 		$this->class = new Register();
 
 		parent::setUp();
@@ -39,7 +45,7 @@ class TestRegister extends WP_UnitTestCase {
 	 */
 	public function tearDown() {
 		global $wp_rewrite;
-		$wp_rewrite->permalink_structure = '';
+		$wp_rewrite = $this->wp_rewrite_backup;
 
 		parent::tearDown();
 	}
