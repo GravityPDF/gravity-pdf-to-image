@@ -2,6 +2,11 @@ language: php
 
 sudo: false
 
+addons:
+  apt:
+    packages:
+      - ghostscript
+
 cache:
   directories:
   - $HOME/.composer/cache/files
@@ -35,6 +40,9 @@ before_install:
   fi;
 
 before_script:
+- pear config-set preferred_state beta
+- pecl channel-update pecl.php.net
+- yes | pecl install imagick
 - if [[ "$COVERAGE" != "1" ]]; then phpenv config-rm xdebug.ini; fi
 - if find . -name "*.php" -exec php -l {} \; | grep "unexpected $end"; then exit 1; fi
 - composer install --prefer-source --optimize-autoloader --no-scripts

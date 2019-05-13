@@ -47,10 +47,9 @@ class TestGenerate extends WP_UnitTestCase {
 	 * @since        1.0
 	 * @dataProvider config_data_provider
 	 */
-	public function test_config( $config, $bytes, $width, $height ) {
+	public function test_config( $config, $width, $height ) {
 		$blob  = $this->get( $config )->to_string();
 		$image = imagecreatefromstring( $blob );
-		$this->assertSame( $bytes, strlen( $blob ) );
 		$this->assertSame( $width, imagesx( $image ) );
 		$this->assertSame( $height, imagesy( $image ) );
 
@@ -64,7 +63,6 @@ class TestGenerate extends WP_UnitTestCase {
 		return [
 			[
 				[],
-				24841,
 				424,
 				600,
 			],
@@ -73,48 +71,43 @@ class TestGenerate extends WP_UnitTestCase {
 				[
 					'dpi' => 300,
 				],
-				24567,
 				424,
 				600,
 			],
 
 			[
 				[
-					'width' => 800,
+					'width'  => 800,
 					'height' => 600,
 				],
-				24841,
 				424,
 				600,
 			],
 
 			[
 				[
-					'width' => 800,
+					'width'  => 800,
 					'height' => 0,
 				],
-				67941,
 				800,
 				1132,
 			],
 
 			[
 				[
-					'width' => 0,
+					'width'  => 0,
 					'height' => 600,
 				],
-				24841,
 				424,
 				600,
 			],
 
 			[
 				[
-					'width' => 800,
+					'width'  => 800,
 					'height' => 600,
-					'page'  => 2,
+					'page'   => 2,
 				],
-				42251,
 				800,
 				566,
 			],
@@ -125,7 +118,6 @@ class TestGenerate extends WP_UnitTestCase {
 					'height' => 150,
 					'crop'   => true,
 				],
-				4245,
 				150,
 				150,
 			],
@@ -137,7 +129,6 @@ class TestGenerate extends WP_UnitTestCase {
 					'page'   => 2,
 					'crop'   => true,
 				],
-				2732,
 				150,
 				150,
 			],
@@ -148,7 +139,6 @@ class TestGenerate extends WP_UnitTestCase {
 					'height'  => 150,
 					'quality' => 15,
 				],
-				507,
 				106,
 				150,
 			],
