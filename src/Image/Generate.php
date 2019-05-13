@@ -271,7 +271,7 @@ class Generate {
 		}
 
 		$profiles = $image->getImageProfiles( '*', false );
-		if ( array_search( 'icc', $profiles ) === false ) {
+		if ( array_search( 'icc', $profiles, true ) === false ) {
 			$icc_cmyk = file_get_contents( dirname( GFPDF_PDF_TO_IMAGE_FILE ) . '/assets/iccprofile/USWebCoatedSWOP.icc' );
 			$image->profileImage( 'icc', $icc_cmyk );
 			unset( $icc_cmyk );

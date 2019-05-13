@@ -33,7 +33,7 @@ class TestRegister extends WP_UnitTestCase {
 	public function setUp() {
 		global $wp_rewrite;
 		$this->wp_rewrite_backup = $wp_rewrite;
-		$wp_rewrite = new \WP_Rewrite();
+		$wp_rewrite              = new \WP_Rewrite();
 
 		$this->class = new Register();
 

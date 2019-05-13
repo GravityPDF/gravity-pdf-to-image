@@ -77,7 +77,7 @@ class TestGenerate extends WP_UnitTestCase {
 
 			[
 				[
-					'width' => 800,
+					'width'  => 800,
 					'height' => 600,
 				],
 				424,
@@ -86,7 +86,7 @@ class TestGenerate extends WP_UnitTestCase {
 
 			[
 				[
-					'width' => 800,
+					'width'  => 800,
 					'height' => 0,
 				],
 				800,
@@ -95,7 +95,7 @@ class TestGenerate extends WP_UnitTestCase {
 
 			[
 				[
-					'width' => 0,
+					'width'  => 0,
 					'height' => 600,
 				],
 				424,
@@ -104,9 +104,9 @@ class TestGenerate extends WP_UnitTestCase {
 
 			[
 				[
-					'width' => 800,
+					'width'  => 800,
 					'height' => 600,
-					'page'  => 2,
+					'page'   => 2,
 				],
 				800,
 				566,

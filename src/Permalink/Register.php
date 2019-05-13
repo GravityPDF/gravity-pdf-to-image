@@ -82,7 +82,7 @@ class Register {
 	 * @since 1.0
 	 */
 	public function maybe_register_rewrite_tags( $tags ) {
-		if ( in_array( 'gpdf', $tags ) ) {
+		if ( in_array( 'gpdf', $tags, true ) ) {
 			$tags[] = 'sub_action';
 		}
 
