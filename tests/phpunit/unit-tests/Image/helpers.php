@@ -25,6 +25,10 @@ function header( $string ) {
  * @return bool
  */
 function is_jpeg( $data ) {
+	if ( empty( $data[0] ) || empty( $data[1] ) ) {
+		return false;
+	}
+
 	return ( bin2hex( $data[0] ) === 'ff' && bin2hex( $data[1] ) === 'd8' );
 }
 
