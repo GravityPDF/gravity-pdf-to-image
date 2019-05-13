@@ -6,13 +6,13 @@ use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use WP_UnitTestCase;
 
 /**
- * Class TestCommon
+ * Class TestFlushCache
  *
  * @package GFPDF\Plugins\PdfToImage\Image
  *
  * @group   Image
  */
-class TestCommon extends WP_UnitTestCase {
+class TestFlushCache extends WP_UnitTestCase {
 
 	/**
 	 * @var FlushCache
