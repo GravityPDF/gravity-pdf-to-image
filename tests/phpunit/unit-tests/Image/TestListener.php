@@ -93,7 +93,6 @@ class TestListener extends GpdfUnitTestCase {
 		$pdf = [
 			'id'                  => '12345678',
 			'filename'            => 'sample',
-
 			'security'            => 'No',
 			'pdf_to_image_toggle' => 0,
 			'pdf_to_image_page'   => 1,
@@ -107,7 +106,7 @@ class TestListener extends GpdfUnitTestCase {
 		$this->assertEmpty( ob_get_clean() );
 
 		/* Verify the cached copy is served inline */
-		$image_absolute_path = $this->image_common->get_image_path_from_pdf( $pdf_wrapper->get_filename(), $form['id'], $entry['id'] );
+		$image_absolute_path = $this->image_common->get_image_path_from_pdf( $pdf_wrapper->get_filename(), $form['id'], $pdf['id'], $entry['id'] );
 		wp_mkdir_p( dirname( $image_absolute_path ) );
 		copy( __DIR__ . '/../../assets/image/sample.jpg', $image_absolute_path );
 

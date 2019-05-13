@@ -79,7 +79,7 @@ class Listener {
 			return;
 		}
 
-		$image_absolute_path = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $entry['id'] );
+		$image_absolute_path = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $settings['id'], $entry['id'] );
 		$image_name          = basename( $image_absolute_path );
 
 		if ( ! is_file( $image_absolute_path ) ) {
@@ -136,7 +136,7 @@ class Listener {
 
 			$image_config         = $this->image_common->get_settings( $settings );
 			$image_config['page'] = $page;
-			$image_absolute_path  = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $entry['id'] );
+			$image_absolute_path  = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $settings['id'], $entry['id'] );
 			$image_name           = basename( $image_absolute_path );
 
 			$mpdf->encrypted = false;

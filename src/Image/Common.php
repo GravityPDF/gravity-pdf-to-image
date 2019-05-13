@@ -170,14 +170,15 @@ class Common {
 	/**
 	 * @param string $file
 	 * @param int    $form_id
+	 * @param string $pdf_id
 	 * @param int    $entry_id
 	 *
 	 * @return string
 	 *
 	 * @since 1.0
 	 */
-	public function get_image_path_from_pdf( $file, $form_id, $entry_id ) {
-		$image_tmp_directory = $this->tmp_path . $form_id . $entry_id . '/';
+	public function get_image_path_from_pdf( $file, $form_id, $pdf_id, $entry_id ) {
+		$image_tmp_directory = $this->tmp_path . $form_id . '/' . $pdf_id . '/' . $entry_id . '/';
 		$image_name          = $this->get_name_from_pdf( $file );
 
 		return $image_tmp_directory . $image_name;
@@ -207,7 +208,7 @@ class Common {
 		}
 
 		$pdf_absolute_path   = $pdf->get_full_pdf_path();
-		$image_absolute_path = $this->get_image_path_from_pdf( $pdf_absolute_path, $entry['form_id'], $entry['id'] );
+		$image_absolute_path = $this->get_image_path_from_pdf( $pdf_absolute_path, $entry['form_id'], $settings['id'], $entry['id'] );
 		$image_tmp_directory = dirname( $image_absolute_path );
 
 		return [
