@@ -59,7 +59,6 @@ class TestGenerate extends WP_UnitTestCase {
 
 	/*
 	 * @since 1.0
-	 * @TODO fix this after the resize / crop functionality is reworked
 	 */
 	public function config_data_provider() {
 		return [
