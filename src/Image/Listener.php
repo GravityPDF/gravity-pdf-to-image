@@ -79,19 +79,19 @@ class Listener {
 			return;
 		}
 
-		$image_absolute_path = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $settings['id'], $entry['id'] );
+		list( $subaction, $page ) = $this->get_pdf_image_url_config();
+
+		$image_absolute_path = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $settings['id'], $entry['id'], $page );
 		$image_name          = basename( $image_absolute_path );
 
 		if ( ! is_file( $image_absolute_path ) ) {
 			return;
 		}
 
-		list( $subaction ) = $this->get_pdf_image_url_config();
-
 		try {
 			$image_config = $this->image_common->get_settings( $settings );
-			$image_data   = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
-			$image        = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config + [ 'skip_validation' => true ] );
+			$image_data = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
+			$image      = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config + [ 'skip_validation' => true ] );
 
 			$this->logger->addNotice( sprintf( 'Displaying PDF ID#%1$s Cached Image', $settings['id'] ) );
 
@@ -136,7 +136,7 @@ class Listener {
 
 			$image_config         = $this->image_common->get_settings( $settings );
 			$image_config['page'] = $page;
-			$image_absolute_path  = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $settings['id'], $entry['id'] );
+			$image_absolute_path  = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $settings['id'], $entry['id'], $image_config['page'] );
 			$image_name           = basename( $image_absolute_path );
 
 			$mpdf->encrypted = false;

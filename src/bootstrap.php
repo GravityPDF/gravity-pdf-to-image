@@ -8,6 +8,7 @@ use GFPDF\Plugins\PdfToImage\Entry\AddImageLinkToEntryList;
 use GFPDF\Plugins\PdfToImage\Entry\AddImageToNotification;
 use GFPDF\Plugins\PdfToImage\Entry\AlwaysSaveImage;
 use GFPDF\Plugins\PdfToImage\Image\Common;
+use GFPDF\Plugins\PdfToImage\Image\FlushCache;
 use GFPDF\Plugins\PdfToImage\Options\AddPdfToImageFields;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use GFPDF\Plugins\PdfToImage\Permalink\Register;
@@ -77,6 +78,7 @@ class Bootstrap extends Helper_Abstract_Addon {
 				new AddImageShortcodeToPdfList( $image_common ),
 				$shortcode,
 				new AlwaysSaveImage( $image_common, $pdf_security ),
+				new FlushCache( $image_common ),
 			]
 		);
 

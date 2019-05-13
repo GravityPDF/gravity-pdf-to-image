@@ -172,13 +172,14 @@ class Common {
 	 * @param int    $form_id
 	 * @param string $pdf_id
 	 * @param int    $entry_id
+	 * @param int    $page
 	 *
 	 * @return string
 	 *
 	 * @since 1.0
 	 */
-	public function get_image_path_from_pdf( $file, $form_id, $pdf_id, $entry_id ) {
-		$image_tmp_directory = $this->tmp_path . $form_id . '/' . $pdf_id . '/' . $entry_id . '/';
+	public function get_image_path_from_pdf( $file, $form_id, $pdf_id, $entry_id, $page ) {
+		$image_tmp_directory = $this->tmp_path . $form_id . '/' . $pdf_id . '/' . $entry_id . '/' . $page . '/';
 		$image_name          = $this->get_name_from_pdf( $file );
 
 		return $image_tmp_directory . $image_name;
@@ -200,7 +201,8 @@ class Common {
 	 */
 	public function get_pdf_and_image_path_details( $entry, $settings ) {
 		$pdf        = $this->maybe_generate_tmp_pdf( $entry, $settings );
-		$image_info = new Generate( $this, $pdf->get_full_pdf_path(), $this->get_settings( $settings ) );
+		$image_config = $this->get_settings( $settings );
+		$image_info = new Generate( $this, $pdf->get_full_pdf_path(), $image_config );
 
 		/* If we had to generate a tmp PDF, reset the image name back to the original */
 		if ( $this->pdf_security->is_security_enabled( $settings ) ) {
@@ -208,7 +210,7 @@ class Common {
 		}
 
 		$pdf_absolute_path   = $pdf->get_full_pdf_path();
-		$image_absolute_path = $this->get_image_path_from_pdf( $pdf_absolute_path, $entry['form_id'], $settings['id'], $entry['id'] );
+		$image_absolute_path = $this->get_image_path_from_pdf( $pdf_absolute_path, $entry['form_id'], $settings['id'], $entry['id'], $image_config['page'] );
 		$image_tmp_directory = dirname( $image_absolute_path );
 
 		return [
