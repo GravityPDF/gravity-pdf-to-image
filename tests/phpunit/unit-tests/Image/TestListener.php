@@ -107,7 +107,7 @@ class TestListener extends GpdfUnitTestCase {
 
 		/* Verify the cached copy is served inline */
 		$GLOBALS['wp']->query_vars['page'] = '1';
-		$image_absolute_path = $this->image_common->get_image_path_from_pdf( $pdf_wrapper->get_filename(), $form['id'], $pdf['id'], $entry['id'], $pdf['pdf_to_image_page'] );
+		$image_absolute_path               = $this->image_common->get_image_path_from_pdf( $pdf_wrapper->get_filename(), $form['id'], $pdf['id'], $entry['id'], $pdf['pdf_to_image_page'] );
 		wp_mkdir_p( dirname( $image_absolute_path ) );
 		copy( __DIR__ . '/../../assets/image/sample.jpg', $image_absolute_path );
 

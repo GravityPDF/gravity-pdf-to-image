@@ -200,9 +200,9 @@ class Common {
 	 * @since 1.0
 	 */
 	public function get_pdf_and_image_path_details( $entry, $settings ) {
-		$pdf        = $this->maybe_generate_tmp_pdf( $entry, $settings );
+		$pdf          = $this->maybe_generate_tmp_pdf( $entry, $settings );
 		$image_config = $this->get_settings( $settings );
-		$image_info = new Generate( $this, $pdf->get_full_pdf_path(), $image_config );
+		$image_info   = new Generate( $this, $pdf->get_full_pdf_path(), $image_config );
 
 		/* If we had to generate a tmp PDF, reset the image name back to the original */
 		if ( $this->pdf_security->is_security_enabled( $settings ) ) {
