@@ -102,6 +102,8 @@ class Listener {
 			} else {
 				$image->to_screen( $image_data );
 			}
+
+			$this->end();
 		} catch ( Exception $e ) {
 			$this->handle_error( $e );
 		}
@@ -155,10 +157,19 @@ class Listener {
 				$image->to_screen( $image_data );
 			}
 
-			wp_die();
+			$this->end();
 		} catch ( Exception $e ) {
 			$this->handle_error( $e );
 		}
+	}
+
+	/**
+	 * End the process
+	 *
+	 * @since 1.0
+	 */
+	protected function end() {
+		exit;
 	}
 
 	/**
