@@ -157,7 +157,7 @@ $plugin = apply_filters(
 	)
 );
 
-$plugin->set_edd_download_id( '29831' );
+$plugin->set_edd_download_id( '31130' );
 $plugin->set_addon_documentation_slug( 'shop-plugin-pdf-to-image-add-on' );
 $plugin->init();
 
