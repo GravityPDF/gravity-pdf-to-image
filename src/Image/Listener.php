@@ -79,6 +79,8 @@ class Listener {
 			return;
 		}
 
+		$this->prevent_cache();
+
 		list( $subaction, $page ) = $this->get_pdf_image_url_config();
 
 		$image_absolute_path = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $settings['id'], $entry['id'], $page );
@@ -217,5 +219,16 @@ class Listener {
 			$subaction,
 			$page,
 		];
+	}
+
+	/**
+	 * Tell WordPress not to cache the request
+	 *
+	 * @since 1.0
+	 */
+	protected function prevent_cache() {
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
 	}
 }

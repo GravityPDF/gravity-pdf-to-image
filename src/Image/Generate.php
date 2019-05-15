@@ -333,8 +333,8 @@ class Generate {
 			$image = $this->generate();
 		}
 
-		header( 'Content-Type: ' . $image->get_mime() );
-		header( 'Content-Disposition: inline; filename="' . $image->get_filename() . '"' );
+		header( 'Content-Type: ' . $image->get_mime(), true );
+		header( 'Content-Disposition: inline; filename="' . $image->get_filename() . '"', true );
 		echo $image->get_data();
 	}
 
@@ -353,12 +353,12 @@ class Generate {
 			$image = $this->generate();
 		}
 
-		header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
-		header( 'Content-Description: File Transfer' );
-		header( 'Content-Length: ' . strlen( $image->get_data() ) );
-		header( 'Content-Transfer-Encoding: Binary' );
-		header( 'Content-Type: application/octet-stream' );
-		header( 'Content-Disposition: attachment; filename="' . $image->get_filename() . '"' );
+		header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0', true );
+		header( 'Content-Description: File Transfer', true );
+		header( 'Content-Length: ' . strlen( $image->get_data() ), true );
+		header( 'Content-Transfer-Encoding: Binary', true );
+		header( 'Content-Type: application/octet-stream', true );
+		header( 'Content-Disposition: attachment; filename="' . $image->get_filename() . '"' , true);
 
 		echo $image->get_data();
 	}
