@@ -21,7 +21,7 @@ git archive ${BRANCH} --output ${PACKAGE_DIR}/package.tar.gz
 tar -zxf ${PACKAGE_DIR}/package.tar.gz --directory ${PACKAGE_DIR} && rm ${PACKAGE_DIR}/package.tar.gz
 
 # Run Composer
-composer install --no-dev  --prefer-dist --optimize-autoloader --working-dir ${PACKAGE_DIR}
+composer install --ignore-platform-reqs --no-dev  --prefer-dist --optimize-autoloader --working-dir ${PACKAGE_DIR}
 
 # Generate translation file
 npm install --global wp-pot-cli
