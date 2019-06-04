@@ -40,7 +40,9 @@ class FlushCache {
 	 * @since 1.0
 	 */
 	public function init() {
-		add_filter( 'gfpdf_form_update_pdf', [ $this, 'flush_image_cache' ], 10, 2 );
+		add_filter( 'gfpdf_form_update_pdf', [ $this, 'flush_pdf_image_cache' ], 10, 2 );
+		add_action( 'gform_after_update_entry', [ $this, 'gform_after_update_entry' ], 10, 2 );
+		add_action( 'gform_post_update_entry', [ $this, 'gform_post_update_entry' ], 10, 2 );
 	}
 
 	/**
@@ -53,15 +55,65 @@ class FlushCache {
 	 *
 	 * @since 1.0
 	 */
-	public function flush_image_cache( $pdf, $form_id ) {
-		$misc = \GPDFAPI::get_misc_class();
+	public function flush_pdf_image_cache( $pdf, $form_id ) {
 
 		/* Get the image cache path, striping off the filename, entry and page directories */
 		$pdf_image_cache_path = rtrim( $this->common->get_image_path_from_pdf( '', $form_id, $pdf['id'], 0, 0 ), '/0/0/.jpg' );
-		if ( is_dir( $pdf_image_cache_path ) ) {
-			$misc->rmdir( $pdf_image_cache_path );
-		}
+		$this->delete_folder( $pdf_image_cache_path );
 
 		return $pdf;
+	}
+
+	/**
+	 * Proxy to flush_entry_image_cache
+	 *
+	 * @param array $form
+	 * @param int   $entry_id
+	 *
+	 * @since 1.0
+	 */
+	public function gform_after_update_entry( $form, $entry_id ) {
+		$this->flush_entry_image_cache( $form['id'], $entry_id );
+	}
+
+	/**
+	 * Proxy to flush_entry_image_cache
+	 *
+	 * @param $entry
+	 *
+	 * @since 1.0
+	 */
+	public function gform_post_update_entry( $entry ) {
+		$this->flush_entry_image_cache( $entry['form_id'], $entry['id'] );
+	}
+
+	/**
+	 * Flush the image disk cache for the current form entry
+	 *
+	 * @param array $form_id
+	 * @param int   $entry_id
+	 *
+	 * @return array
+	 *
+	 * @since 1.0
+	 */
+	public function flush_entry_image_cache( $form_id, $entry_id ) {
+		$pdfs = \GPDFAPI::get_form_pdfs( $form_id );
+
+		if ( is_wp_error( $pdfs ) ) {
+			return;
+		}
+
+		foreach ( $pdfs as $pdf ) {
+			$this->delete_folder( $this->common->get_tmp_image_directory( $form_id, $pdf['id'], $entry_id ) );
+		}
+	}
+
+	protected function delete_folder( $path ) {
+		$misc = \GPDFAPI::get_misc_class();
+
+		if ( is_dir( $path ) ) {
+			$misc->rmdir( $path );
+		}
 	}
 }

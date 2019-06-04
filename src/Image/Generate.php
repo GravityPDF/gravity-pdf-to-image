@@ -358,7 +358,7 @@ class Generate {
 		header( 'Content-Length: ' . strlen( $image->get_data() ), true );
 		header( 'Content-Transfer-Encoding: Binary', true );
 		header( 'Content-Type: application/octet-stream', true );
-		header( 'Content-Disposition: attachment; filename="' . $image->get_filename() . '"' , true);
+		header( 'Content-Disposition: attachment; filename="' . $image->get_filename() . '"', true );
 
 		echo $image->get_data();
 	}

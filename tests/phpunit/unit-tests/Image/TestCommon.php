@@ -26,12 +26,18 @@ class TestCommon extends WP_UnitTestCase {
 	protected $original_font_location;
 
 	/**
+	 * @var @string
+	 */
+	protected $tmp_base_directory;
+
+	/**
 	 * @since 1.0
 	 */
 	public function setUp() {
-		$data = \GPDFAPI::get_data_class();
+		$data                     = \GPDFAPI::get_data_class();
+		$this->tmp_base_directory = $data->template_tmp_location;
 
-		$this->class = new Common( new PdfSecurity(), $data->template_tmp_location );
+		$this->class = new Common( new PdfSecurity(), $this->tmp_base_directory );
 
 		$this->original_font_location = $data->template_font_location;
 		$data->template_font_location = __DIR__ . '/../../assets/fonts/';
@@ -172,5 +178,15 @@ class TestCommon extends WP_UnitTestCase {
 	public function test_get_original_pdf_filename() {
 		$this->assertSame( 'Zadani.pdf', $this->class->get_original_pdf_filename( 'Zadani.pdf' ) );
 		$this->assertSame( 'Zadani.pdf', $this->class->get_original_pdf_filename( '123456789@@Zadani.pdf' ) );
+	}
+
+	/**
+	 * @since 1.0
+	 */
+	public function test_get_tmp_image_directory() {
+		$this->assertEquals( $this->tmp_base_directory . '3/', $this->class->get_tmp_image_directory( 3 ) );
+		$this->assertEquals( $this->tmp_base_directory . '3/abc123/', $this->class->get_tmp_image_directory( 3, 'abc123' ) );
+		$this->assertEquals( $this->tmp_base_directory . '3/abc123/15/', $this->class->get_tmp_image_directory( 3, 'abc123', 15 ) );
+		$this->assertEquals( $this->tmp_base_directory . '3/abc123/15/-5/', $this->class->get_tmp_image_directory( 3, 'abc123', 15, -5 ) );
 	}
 }
