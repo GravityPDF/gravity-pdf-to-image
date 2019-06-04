@@ -8,7 +8,7 @@
  * Author URI:      https://gravitypdf.com
  * Text Domain:     gravity-pdf-to-image
  * Domain Path:     /languages
- * Version:         1.0.0
+ * Version:         1.0.0.1
  */
 
 /**
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'GFPDF_PDF_TO_IMAGE_FILE', __FILE__ );
-define( 'GFPDF_PDF_TO_IMAGE_VERSION', '1.0.0' );
+define( 'GFPDF_PDF_TO_IMAGE_VERSION', '1.0.0.1' );
 
 /**
  * Class Gpdf_To_Images_Checks
