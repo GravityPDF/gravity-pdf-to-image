@@ -70,11 +70,12 @@ class TestFlushCache extends WP_UnitTestCase {
 	 * @since 1.0
 	 */
 	public function test_flush_entry_image_cache() {
+		$form_id = \GFAPI::add_form( json_decode( file_get_contents( __DIR__ . '/../../assets/json/form.json' ), true )[0] );
+
 		$pdf = [
 			'id' => '5cd3279ba65c9',
 		];
 
-		$form_id  = 15;
 		$entry_id = 105;
 
 		$image_path = $this->image_common->get_image_path_from_pdf( 'sample.pdf', $form_id, $pdf['id'], $entry_id, 1 );
