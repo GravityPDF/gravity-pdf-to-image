@@ -179,10 +179,40 @@ class Common {
 	 * @since 1.0
 	 */
 	public function get_image_path_from_pdf( $file, $form_id, $pdf_id, $entry_id, $page ) {
-		$image_tmp_directory = $this->tmp_path . $form_id . '/' . $pdf_id . '/' . $entry_id . '/' . $page . '/';
+		$image_tmp_directory = $this->get_tmp_image_directory( $form_id, $pdf_id, $entry_id, $page );
 		$image_name          = $this->get_name_from_pdf( $file );
 
 		return $image_tmp_directory . $image_name;
+	}
+
+	/**
+	 * Get the temporary image directory
+	 *
+	 * @param int    $form_id
+	 * @param string $pdf_id
+	 * @param int    $entry_id
+	 * @param int    $page
+	 *
+	 * @return string
+	 *
+	 * @since 1.0
+	 */
+	public function get_tmp_image_directory( $form_id, $pdf_id = null, $entry_id = null, $page = null ) {
+		$path = $this->tmp_path . $form_id . '/';
+
+		if ( ! is_null( $pdf_id ) ) {
+			$path .= $pdf_id . '/';
+		}
+
+		if ( ! is_null( $entry_id ) ) {
+			$path .= $entry_id . '/';
+		}
+
+		if ( ! is_null( $page ) ) {
+			$path .= $page . '/';
+		}
+
+		return $path;
 	}
 
 	/**

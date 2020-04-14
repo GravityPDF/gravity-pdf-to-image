@@ -35,10 +35,15 @@ class TestListener extends GpdfUnitTestCase {
 		$data               = \GPDFAPI::get_data_class();
 		$this->image_common = new Common( new PdfSecurity(), $data->template_tmp_location );
 
-		$this->class = new Listener(
-			$this->image_common,
-			new PdfSecurity()
-		);
+		$this->class = $this->getMockBuilder( Listener::class )
+							->setConstructorArgs(
+								[
+									$this->image_common,
+									new PdfSecurity(),
+								]
+							)
+							->setMethods( [ 'end' ] )
+							->getMock();
 
 		$this->class->set_logger( \GPDFAPI::get_log_class() );
 
