@@ -1,7 +1,5 @@
 language: php
 
-dist: bionic
-
 sudo: false
 
 services:
