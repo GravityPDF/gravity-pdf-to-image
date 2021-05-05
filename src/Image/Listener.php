@@ -6,7 +6,6 @@ use GFPDF\Helper\Helper_PDF;
 use GFPDF\Helper\Helper_Trait_Logger;
 use GFPDF\Plugins\PdfToImage\Exception\PdfToImage;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
-use Mpdf\Output\Destination;
 use Exception;
 
 /**
@@ -66,11 +65,11 @@ class Listener {
 	/**
 	 * Load the cached image (if exists)
 	 *
-	 * @param \Mpdf\Mpdf $mpdf
-	 * @param array      $form
-	 * @param array      $entry
-	 * @param array      $settings
-	 * @param Helper_PDF $helper_pdf
+	 * @param \Mpdf\Mpdf|\GFPDF_Vendor\Mpdf\Mpdf $mpdf
+	 * @param array                              $form
+	 * @param array                              $entry
+	 * @param array                              $settings
+	 * @param Helper_PDF                         $helper_pdf
 	 *
 	 * @since 1.0
 	 */
@@ -112,11 +111,11 @@ class Listener {
 	/**
 	 * Generate the current PDF, then convert it to an image and display
 	 *
-	 * @param \Mpdf\Mpdf $mpdf
-	 * @param array      $form
-	 * @param array      $entry
-	 * @param array      $settings
-	 * @param Helper_PDF $helper_pdf
+	 * @param \Mpdf\Mpdf|\GFPDF_Vendor\Mpdf\Mpdf $mpdf
+	 * @param array                              $form
+	 * @param array                              $entry
+	 * @param array                              $settings
+	 * @param Helper_PDF                         $helper_pdf
 	 *
 	 * @since 1.0
 	 */
@@ -143,8 +142,10 @@ class Listener {
 			$image_absolute_path  = $this->image_common->get_image_path_from_pdf( $helper_pdf->get_filename(), $form['id'], $settings['id'], $entry['id'], $image_config['page'] );
 			$image_name           = basename( $image_absolute_path );
 
+			$destination = class_exists( '\GFPDF_Vendor\Mpdf\Output\Destination' ) ? '\GFPDF_Vendor\Mpdf\Output\Destination' : '\Mpdf\Output\Destination';
+
 			$mpdf->encrypted = false;
-			$helper_pdf->save_pdf( $mpdf->Output( '', Destination::STRING_RETURN ) );
+			$helper_pdf->save_pdf( $mpdf->Output( '', $destination::STRING_RETURN ) );
 
 			/* Save the image to disk for caching purposes, then display to the user */
 			$image = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config );

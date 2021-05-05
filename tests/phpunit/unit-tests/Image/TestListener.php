@@ -5,7 +5,6 @@ namespace GFPDF\Plugins\PdfToImage\Image;
 use GFPDF\Plugins\PdfToImage\GpdfUnitTestCase;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfSecurity;
 use GFPDF\Plugins\PdfToImage\Pdf\PdfWrapper;
-use Mpdf\Mpdf;
 
 require_once( __DIR__ . '/helpers.php' );
 
@@ -153,7 +152,8 @@ class TestListener extends GpdfUnitTestCase {
 			'pdf_to_image_page'   => 1,
 		];
 
-		$mpdf        = new Mpdf( [ 'mode' => 'c' ] );
+		$class       = class_exists( '\GFPDF_Vendor\Mpdf\Mpdf' ) ? '\GFPDF_Vendor\Mpdf\Mpdf' : '\Mpdf\Mpdf';
+		$mpdf        = new $class( [ 'mode' => 'c' ] );
 		$pdf_wrapper = new PdfWrapper( $entry, $pdf );
 
 		/* Test generic error */

@@ -134,7 +134,7 @@ class AddImageToNotification {
 	 *
 	 * @throws \ImagickException
 	 * @throws PdfGenerationAndSave
-	 * @throws \Mpdf\MpdfException
+	 * @throws \Mpdf\MpdfException|\GFPDF_Vendor\Mpdf\MpdfException
 	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
 	 *
 	 * @since 1.0

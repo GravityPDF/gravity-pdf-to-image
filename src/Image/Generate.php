@@ -3,7 +3,6 @@
 namespace GFPDF\Plugins\PdfToImage\Image;
 
 use GFPDF\Plugins\PdfToImage\Exception\PdfToImageInvalidArgument;
-use Mpdf\Mpdf;
 use Imagick;
 use ImagickException;
 
@@ -87,7 +86,7 @@ class Generate {
 	 * @param string $file   The absolute path to the PDF an image should be generated from
 	 * @param array  $config The custom configuration that should be applied when converting the PDF to an image
 	 *
-	 * @throws \Mpdf\MpdfException
+	 * @throws \Mpdf\MpdfException|\GFPDF_Vendor\Mpdf\MpdfException
 	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
 	 *
 	 * @since 1.0
@@ -127,7 +126,7 @@ class Generate {
 	/**
 	 * Verify the page to display is a valid number and exists
 	 *
-	 * @throws \Mpdf\MpdfException
+	 * @throws \Mpdf\MpdfException|\GFPDF_Vendor\Mpdf\MpdfException
 	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
 	 *
 	 * @since 1.0
@@ -138,7 +137,8 @@ class Generate {
 		}
 
 		/* Read the PDF and get the page count */
-		$mpdf       = new Mpdf( [ 'mode' => 'c' ] );
+		$class      = class_exists( '\GFPDF_Vendor\Mpdf\Mpdf' ) ? '\GFPDF_Vendor\Mpdf\Mpdf' : '\Mpdf\Mpdf';
+		$mpdf       = new $class( [ 'mode' => 'c' ] );
 		$page_count = $mpdf->setSourceFile( $this->file );
 
 		if ( abs( $this->page ) > $page_count ) {

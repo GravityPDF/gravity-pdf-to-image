@@ -223,7 +223,7 @@ class Common {
 	 *
 	 * @return array
 	 *
-	 * @throws \Mpdf\MpdfException
+	 * @throws \Mpdf\MpdfException|\GFPDF_Vendor\Mpdf\MpdfException
 	 * @throws \setasign\Fpdi\PdfParser\PdfParserException
 	 * @throws PdfGenerationAndSave
 	 *
