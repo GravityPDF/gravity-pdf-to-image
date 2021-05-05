@@ -8,12 +8,12 @@
  * Author URI:      https://gravitypdf.com
  * Text Domain:     gravity-pdf-to-image
  * Domain Path:     /languages
- * Version:         1.0.0.1
+ * Version:         1.1.0
  */
 
 /**
  * @package     Gravity PDF to Image
- * @copyright   Copyright (c) 2020, Blue Liquid Designs
+ * @copyright   Copyright (c) 2021, Blue Liquid Designs
  * @license     http://opensource.org/licenses/gpl-2.0.php GNU Public License
  * @since       1.0
  */
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'GFPDF_PDF_TO_IMAGE_FILE', __FILE__ );
-define( 'GFPDF_PDF_TO_IMAGE_VERSION', '1.0.0.1' );
+define( 'GFPDF_PDF_TO_IMAGE_VERSION', '1.1.0' );
 
 /**
  * Class Gpdf_To_Images_Checks
