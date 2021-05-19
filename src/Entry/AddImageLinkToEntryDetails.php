@@ -62,7 +62,7 @@ class AddImageLinkToEntryDetails {
 				);
 			} else {
 				echo sprintf(
-					'| <a href="%1$s">%2$s</a>',
+					'| <a href="%1$s" target="_blank">%2$s</a>',
 					$this->image_common->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),
 					__( 'Image', 'gravity-pdf-to-image' )
 				);
