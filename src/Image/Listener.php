@@ -94,7 +94,7 @@ class Listener {
 			$image_data   = new ImageData( 'image/jpeg', file_get_contents( $image_absolute_path ), $image_name );
 			$image        = new Generate( $this->image_common, $helper_pdf->get_full_pdf_path(), $image_config + [ 'skip_validation' => true ] );
 
-			$this->logger->addNotice( sprintf( 'Displaying PDF ID#%1$s Cached Image', $settings['id'] ) );
+			$this->logger->notice( sprintf( 'Displaying PDF ID#%1$s Cached Image', $settings['id'] ) );
 
 			if ( $subaction === 'download' ) {
 				$image->to_download( $image_data );
@@ -181,7 +181,7 @@ class Listener {
 	 * @since 1.0
 	 */
 	protected function handle_error( $exception ) {
-		$this->logger->addError(
+		$this->logger->error(
 			'Image Generation Error',
 			[
 				'exception_msg'  => $exception->getMessage(),

@@ -110,7 +110,7 @@ class AlwaysSaveImage {
 			do_action( 'gfpdf_gravitypdfimage_post_save_image_' . $form['id'], $image_absolute_path, basename( $image_absolute_path ), $settings, $entry, $form );
 
 		} catch ( Exception $e ) {
-			$this->logger->addError(
+			$this->logger->error(
 				'Image Generation Error',
 				[
 					'entry'     => $entry,

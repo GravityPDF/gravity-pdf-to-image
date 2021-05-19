@@ -53,11 +53,21 @@ class AddImageLinkToEntryDetails {
 	public function add_image_link_to_entry_details( $pdf ) {
 
 		if ( $this->image_common->has_active_image_settings( $pdf['settings'] ) ) {
-			echo sprintf(
-				'<a href="%1$s" class="button" target="_blank">%2$s</a>',
-				$this->image_common->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),
-				__( 'Image', 'gravity-pdf-to-image' )
-			);
+
+			if ( version_compare( \GFForms::$version, '2.5.0', '<' ) ) {
+				echo sprintf(
+					'<a href="%1$s" class="button" target="_blank">%2$s</a>',
+					$this->image_common->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),
+					__( 'Image', 'gravity-pdf-to-image' )
+				);
+			} else {
+				echo sprintf(
+					'| <a href="%1$s">%2$s</a>',
+					$this->image_common->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),
+					__( 'Image', 'gravity-pdf-to-image' )
+				);
+			}
+
 		}
 	}
 }

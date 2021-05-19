@@ -88,7 +88,7 @@ class AddImageToNotification {
 			/* Store via the form ID and notification ID so we can verify we're working on the correct notification during `gform_notification` */
 			$this->settings[ $form['id'] . ':' . $notification['id'] ] = $settings;
 
-			$this->logger->addNotice( sprintf( 'Registering PDF ID#%1$s for Notification "%2$s" Attachment', $settings['id'], $notification['name'] ) );
+			$this->logger->notice( sprintf( 'Registering PDF ID#%1$s for Notification "%2$s" Attachment', $settings['id'], $notification['name'] ) );
 		}
 	}
 
@@ -111,7 +111,7 @@ class AddImageToNotification {
 		try {
 			$notification['attachments'] = $this->attach_files_to_notification( $notification['attachments'], $entry );
 		} catch ( Exception $e ) {
-			$this->logger->addError(
+			$this->logger->error(
 				'Image Generation Error',
 				[
 					'entry'     => $entry,
@@ -151,7 +151,7 @@ class AddImageToNotification {
 		if ( is_file( $image_absolute_path ) ) {
 			$attachments = $this->handle_attachments( $attachments, $image_absolute_path, $pdf_absolute_path );
 
-			$this->logger->addNotice( sprintf( 'Attaching PDF ID#%1$s Cached Image for Notification', $settings['id'] ) );
+			$this->logger->notice( sprintf( 'Attaching PDF ID#%1$s Cached Image for Notification', $settings['id'] ) );
 
 			return $attachments;
 		}
@@ -162,7 +162,7 @@ class AddImageToNotification {
 
 		$attachments = $this->handle_attachments( $attachments, $image_absolute_path, $pdf_absolute_path );
 
-		$this->logger->addNotice( sprintf( 'Attaching PDF ID#%1$s Generated Image for Notification', $settings['id'] ) );
+		$this->logger->notice( sprintf( 'Attaching PDF ID#%1$s Generated Image for Notification', $settings['id'] ) );
 
 		/* Clean-up */
 		if ( $this->pdf_security->is_security_enabled( $settings ) ) {
