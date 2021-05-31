@@ -54,7 +54,7 @@ class AddImageLinkToEntryDetails {
 
 		if ( $this->image_common->has_active_image_settings( $pdf['settings'] ) ) {
 
-			if ( version_compare( \GFForms::$version, '2.5.0', '<' ) ) {
+			if ( version_compare( PDF_EXTENDED_VERSION, '6.0.0', '<' ) ) {
 				echo sprintf(
 					'<a href="%1$s" class="button" target="_blank">%2$s</a>',
 					$this->image_common->get_url( $pdf['settings']['id'], $pdf['entry_id'], $pdf['settings']['pdf_to_image_page'] ),

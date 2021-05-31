@@ -11,7 +11,7 @@
    * @since 1.0
    */
   function show () {
-    $('tr.gfpdf-pdf-to-image').show()
+    $('.gfpdf-pdf-to-image').show()
   }
 
   /**
@@ -20,7 +20,7 @@
    * @since 1.0
    */
   function hide () {
-    $('tr.gfpdf-pdf-to-image').hide()
+    $('.gfpdf-pdf-to-image').hide()
   }
 
   $(function () {

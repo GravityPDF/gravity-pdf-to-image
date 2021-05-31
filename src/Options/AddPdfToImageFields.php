@@ -109,10 +109,10 @@ class AddPdfToImageFields {
 				'pdf_to_image_resize_and_crop' => [
 					'id'      => 'pdf_to_image_resize_and_crop',
 					'type'    => 'hook',
-					'name'    => esc_html__( 'Constrain Dimensions', 'gravity-pdf-to-image' ),
+					'name'    => esc_html__( 'Constrain Dimensions (px)', 'gravity-pdf-to-image' ),
 					'size'    => 'small',
 					'class'   => 'gfpdf-pdf-to-image',
-					'tooltip' => esc_html__( 'Resize the image proportionally (using a best-fit method) or crop the image to the exact size specified.', 'gravity-pdf-to-image' ),
+					'desc'    => esc_html__( 'Resize the image proportionally (using a best-fit method) or crop the image to the exact size specified.', 'gravity-pdf-to-image' ),
 				],
 
 				'pdf_to_image_dpi'             => [
@@ -182,39 +182,53 @@ class AddPdfToImageFields {
 		ob_start();
 		?>
 
+		<?php if ( version_compare( \GFForms::$version, '2.5.0', '>=' ) ): ?>
+			<span class="gform-settings-description gform-kitchen-sink">
+				<label for="gfpdf_settings[<?= esc_attr( $args['id'] ) ?>]"> <?= wp_kses_post( $args['desc'] ) ?></label>
+			</span>
+		<?php endif; ?>
+
 		<label for="gfpdf_settings[<?= $args['id'] ?>]_width">
+			<?= esc_html__( 'Width', 'gravity-pdf-to-image' ) ?>
+
 			<input type="number"
 				   id="gfpdf_settings[<?= $args['id'] ?>]_width"
 				   class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
 				   name="gfpdf_settings[<?= $args['id'] ?>][]"
 				   value="<?= esc_attr( $width ) ?>"
 				   min="0"
-			/> <?= esc_html__( 'Width', 'gravity-pdf-to-image' ) ?>
+			/>
 		</label>
 
+		&nbsp;
+
 		<label for="gfpdf_settings[<?= $args['id'] ?>]_height">
+			<?= esc_html__( 'Height', 'gravity-pdf-to-image' ) ?>
+
 			<input type="number"
 				   id="gfpdf_settings[<?= $args['id'] ?>]_height"
 				   class="<?= $size ?>-text gfpdf_settings_<?= $args['id'] ?>"
 				   name="gfpdf_settings[<?= $args['id'] ?>][]"
 				   value="<?= esc_attr( $height ) ?>"
 				   min="0"
-			/> <?= esc_html__( 'Height (px)', 'gravity-pdf-to-image' ) ?>
+			/>
 		</label>
-
-		&nbsp; — &nbsp;
 
 		<label>
 			<input type="checkbox"
 				   id="gfpdf_settings[<?= $args['id'] ?>]_crop"
 				   name="gfpdf_settings[<?= $args['id'] ?>][]"
 				<?php checked( 1, $crop ); ?>
-			/> <?= esc_html__( 'Crop to Dimensions', 'gravity-pdf-to-image' ) ?>
+			/>
+
+			<?= esc_html__( 'Crop to Dimensions', 'gravity-pdf-to-image' ) ?>
 		</label>
 
-		<span class="gf_settings_description">
-			<label for="gfpdf_settings[<?= esc_attr( $args['id'] ) ?>]"> <?= wp_kses_post( $args['desc'] ) ?></label>
-		</span>
+		<?php if ( version_compare( \GFForms::$version, '2.5.0', '<' ) ): ?>
+			<span class="gf_settings_description">
+				<label for="gfpdf_settings[<?= esc_attr( $args['id'] ) ?>]"> <?= wp_kses_post( $args['desc'] ) ?></label>
+			</span>
+		<?php endif; ?>
 
 		<?php if ( isset( $args['tooltip'] ) ): ?>
 			<span class="gf_hidden_tooltip" style="display: none;"><?= wp_kses_post( $args['tooltip'] ) ?></span>
