@@ -8,6 +8,9 @@ User's with a valid, active license key can receive support for this plugin by f
 
 == Changelog ==
 
+= 1.1.2 =
+* Bug: Fix display of PDF settings for Gravity Forms 2.5
+
 = 1.1.1 =
 * Bug: Fix fatal error due to usage of legacy logging methods
 * Bug: Fix display of Image download link on Entry Details page when running GF2.5
